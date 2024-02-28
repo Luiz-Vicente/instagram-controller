@@ -1,0 +1,25 @@
+{
+  "name": "instagram-controller",
+  "version": "1.0.0",
+  "description": "This project is an automation created with Puppter that aims to provide an API for Instagram control, allowing you to remove all your likes or delete all the comments you have already made, for example.",
+  "main": "./app/index.js",
+  "scripts": {
+    "cases": "node ./index.mjs"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Luiz-Vicente/instagram-controller.git"
+  },
+  "keywords": [
+    "instagram"
+  ],
+  "author": "Luiz Vicente",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Luiz-Vicente/instagram-controller/issues"
+  },
+  "homepage": "https://github.com/Luiz-Vicente/instagram-controller#readme",
+  "dependencies": {
+    "puppeteer": "^21.6.1"
+  }
+}
