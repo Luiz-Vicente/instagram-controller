@@ -20,6 +20,7 @@
   },
   "homepage": "https://github.com/Luiz-Vicente/instagram-controller#readme",
   "dependencies": {
-    "puppeteer": "^21.6.1"
+    "puppeteer": "^21.6.1",
+    "readline-sync": "^1.4.10"
   }
 }
