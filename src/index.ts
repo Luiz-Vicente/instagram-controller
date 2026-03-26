@@ -216,6 +216,18 @@ async function main(): Promise<void> {
             `today: ${limiter.followedToday}/${MAX_FOLLOWS_PER_DAY} · ` +
             `this hour: ${limiter.followedThisHour}/${MAX_FOLLOWS_PER_HOUR}`
           );
+
+          // ── Delay only after an actual follow ──────────────────────────
+          const isBatchEnd = followed % BATCH_SIZE === 0;
+          if (isBatchEnd) {
+            const pause = randomDelay(BATCH_PAUSE_MIN_SEC, BATCH_PAUSE_MAX_SEC);
+            log(`Batch pause: ${fmt(pause)}`);
+            await sleep(pause);
+          } else {
+            const delay = randomDelay(MIN_DELAY_SEC, MAX_DELAY_SEC);
+            log(`Next follow in ${fmt(delay)}...`);
+            await sleep(delay);
+          }
         } else {
           skipped++;
           log(`[~] @${user.username} — already following or request pending`);
@@ -230,18 +242,6 @@ async function main(): Promise<void> {
         }
         log(`[!] Error following @${user.username}: ${(err as Error).message}`);
         skipped++;
-      }
-
-      // ── Per-follow delay ────────────────────────────────────────────────
-      const delay = randomDelay(MIN_DELAY_SEC, MAX_DELAY_SEC);
-      const isBatchEnd = (followed + skipped) % BATCH_SIZE === 0 && (followed + skipped) > 0;
-      if (isBatchEnd) {
-        const pause = randomDelay(BATCH_PAUSE_MIN_SEC, BATCH_PAUSE_MAX_SEC);
-        log(`Batch pause: ${fmt(pause)}`);
-        await sleep(pause);
-      } else {
-        log(`Next follow in ${fmt(delay)}...`);
-        await sleep(delay);
       }
     }
 
