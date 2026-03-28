@@ -1,4 +1,5 @@
 import axios, { AxiosInstance } from 'axios';
+import { sleep } from './helpers';
 
 export interface UserInfo {
   pk: string;
@@ -23,20 +24,12 @@ const WEB_UA =
 const MOBILE_UA =
   'Instagram 319.0.0.34.109 Android (31/12; 420dpi; 1080x2400; samsung; SM-G991B; o1s; exynos2100; en_US; 553532124)';
 
-export async function sleep(ms: number): Promise<void> {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-}
-
-export function randomDelay(minSec: number, maxSec: number): number {
-  return (Math.floor(Math.random() * (maxSec - minSec + 1)) + minSec) * 1000;
-}
-
 export class InstagramClient {
   private webClient: AxiosInstance;
   private mobileClient: AxiosInstance;
   private sessionId: string;
   private csrfToken: string = '';
-  /** All cookies collected during init */
+  /** All cookies collected during initializeSession */
   private extraCookies: Record<string, string> = {};
 
   constructor(sessionId: string) {
@@ -73,7 +66,7 @@ export class InstagramClient {
 
   // ── Cookie helpers ────────────────────────────────────────────────────────
 
-  private buildCookieString(extra: Record<string, string> = {}): string {
+  private buildCookieHeader(extra: Record<string, string> = {}): string {
     const jar: Record<string, string> = {
       sessionid: this.sessionId,
       ...this.extraCookies,
@@ -85,7 +78,7 @@ export class InstagramClient {
       .join('; ');
   }
 
-  private parseCookieHeaders(headers: Record<string, unknown>): Record<string, string> {
+  private extractCookiesFromResponse(headers: Record<string, unknown>): Record<string, string> {
     const result: Record<string, string> = {};
     const raw = headers['set-cookie'];
     if (!raw) return result;
@@ -99,7 +92,7 @@ export class InstagramClient {
 
   // ── Init ──────────────────────────────────────────────────────────────────
 
-  async init(): Promise<void> {
+  async initializeSession(): Promise<void> {
     const res = await axios.get('https://www.instagram.com/', {
       headers: {
         'User-Agent': WEB_UA,
@@ -111,9 +104,9 @@ export class InstagramClient {
     });
 
     // Capture ALL cookies from the response
-    this.extraCookies = this.parseCookieHeaders(res.headers as Record<string, unknown>);
+    this.extraCookies = this.extractCookiesFromResponse(res.headers as Record<string, unknown>);
     this.csrfToken = this.extraCookies['csrftoken'] ?? '';
-    delete this.extraCookies['csrftoken']; // will be added by buildCookieString
+    delete this.extraCookies['csrftoken']; // will be added by buildCookieHeader
 
     // Fallback: extract csrf from page JSON
     if (!this.csrfToken) {
@@ -125,7 +118,7 @@ export class InstagramClient {
       console.warn('[warn] csrftoken not found — follow actions may fail.');
     }
 
-    const cookieHeader = this.buildCookieString();
+    const cookieHeader = this.buildCookieHeader();
     this.webClient.defaults.headers.common['Cookie'] = cookieHeader;
     this.webClient.defaults.headers.common['X-CSRFToken'] = this.csrfToken;
     this.mobileClient.defaults.headers.common['Cookie'] = cookieHeader;
@@ -134,11 +127,11 @@ export class InstagramClient {
 
   // ── User info — three strategies ──────────────────────────────────────────
 
-  async getUserInfo(username: string): Promise<UserInfo> {
+  async fetchUserProfile(username: string): Promise<UserInfo> {
     const strategies: Array<() => Promise<UserInfo>> = [
-      () => this.getUserViaSearch(username),
-      () => this.getUserViaProfileScrape(username),
-      () => this.getUserViaWebProfileInfo(username),
+      () => this.fetchUserBySearchEndpoint(username),
+      () => this.fetchUserByHtmlScraping(username),
+      () => this.fetchUserByWebProfileApi(username),
     ];
 
     let lastError: unknown;
@@ -156,9 +149,9 @@ export class InstagramClient {
   }
 
   /** Strategy 1 — mobile search endpoint (least rate-limited) */
-  private async getUserViaSearch(username: string): Promise<UserInfo> {
-    const cookie = this.buildCookieString();
-    const res = await this.withRetry(
+  private async fetchUserBySearchEndpoint(username: string): Promise<UserInfo> {
+    const cookie = this.buildCookieHeader();
+    const res = await this.executeWithRetry(
       () =>
         this.mobileClient.get('/api/v1/users/search/', {
           params: { q: username, count: 10 },
@@ -191,9 +184,9 @@ export class InstagramClient {
   }
 
   /** Strategy 2 — scrape the public profile HTML */
-  private async getUserViaProfileScrape(username: string): Promise<UserInfo> {
-    const cookie = this.buildCookieString();
-    const res = await this.withRetry(
+  private async fetchUserByHtmlScraping(username: string): Promise<UserInfo> {
+    const cookie = this.buildCookieHeader();
+    const res = await this.executeWithRetry(
       () =>
         axios.get(`https://www.instagram.com/${username}/`, {
           headers: {
@@ -242,9 +235,9 @@ export class InstagramClient {
   }
 
   /** Strategy 3 — web_profile_info endpoint (most rate-limited, last resort) */
-  private async getUserViaWebProfileInfo(username: string): Promise<UserInfo> {
-    const cookie = this.buildCookieString();
-    const res = await this.withRetry(
+  private async fetchUserByWebProfileApi(username: string): Promise<UserInfo> {
+    const cookie = this.buildCookieHeader();
+    const res = await this.executeWithRetry(
       () =>
         this.webClient.get('/api/v1/users/web_profile_info/', {
           params: { username },
@@ -285,14 +278,14 @@ export class InstagramClient {
 
   // ── Followers ─────────────────────────────────────────────────────────────
 
-  async getFollowersPage(userId: string, maxId?: string): Promise<FollowersPage> {
+  async fetchFollowersPage(userId: string, maxId?: string): Promise<FollowersPage> {
     const params: Record<string, string | number> = { count: 50 };
     if (maxId) params['max_id'] = maxId;
 
-    const res = await this.withRetry(() =>
+    const res = await this.executeWithRetry(() =>
       this.mobileClient.get(`/api/v1/friendships/${userId}/followers/`, {
         params,
-        headers: { Cookie: this.buildCookieString() },
+        headers: { Cookie: this.buildCookieHeader() },
       })
     );
 
@@ -305,10 +298,10 @@ export class InstagramClient {
 
   // ── Friendship status ─────────────────────────────────────────────────────
 
-  async showFriendship(userId: string): Promise<{ following: boolean; followed_by: boolean; outgoing_request: boolean }> {
-    const res = await this.withRetry(() =>
+  async fetchFriendshipStatus(userId: string): Promise<{ following: boolean; followed_by: boolean; outgoing_request: boolean }> {
+    const res = await this.executeWithRetry(() =>
       this.mobileClient.get(`/api/v1/friendships/show/${userId}/`, {
-        headers: { Cookie: this.buildCookieString() },
+        headers: { Cookie: this.buildCookieHeader() },
       })
     );
 
@@ -328,13 +321,13 @@ export class InstagramClient {
   // ── Follow ────────────────────────────────────────────────────────────────
 
   async followUser(userId: string): Promise<boolean> {
-    const uuid = this.generateUUID();
+    const uuid = this.generateRequestUUID();
     const body = `_uuid=${uuid}&_uid=${userId}&user_id=${userId}&radio_type=wifi-none`;
 
-    const res = await this.withRetry(() =>
+    const res = await this.executeWithRetry(() =>
       this.mobileClient.post(`/api/v1/friendships/create/${userId}/`, body, {
         headers: {
-          Cookie: this.buildCookieString(),
+          Cookie: this.buildCookieHeader(),
           'X-CSRFToken': this.csrfToken,
         },
       })
@@ -346,7 +339,7 @@ export class InstagramClient {
 
   // ── Retry wrapper ─────────────────────────────────────────────────────────
 
-  private async withRetry<T>(fn: () => Promise<T>, maxAttempts = 3): Promise<T> {
+  private async executeWithRetry<T>(fn: () => Promise<T>, maxAttempts = 3): Promise<T> {
     let lastErr: unknown;
     for (let attempt = 1; attempt <= maxAttempts; attempt++) {
       try {
@@ -370,7 +363,7 @@ export class InstagramClient {
 
   // ── Helpers ───────────────────────────────────────────────────────────────
 
-  private generateUUID(): string {
+  private generateRequestUUID(): string {
     return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
       const r = (Math.random() * 16) | 0;
       return (c === 'x' ? r : (r & 0x3) | 0x8).toString(16);
