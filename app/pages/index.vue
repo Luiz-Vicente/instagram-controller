@@ -100,26 +100,20 @@
 					<div class="flex flex-col gap-3">
 						<Label>Filtros de conta</Label>
 
-						<div class="flex items-center gap-3">
-							<Checkbox id="follow-private" v-model:checked="followPrivate" />
-							<label for="follow-private" class="text-sm cursor-pointer select-none">
-								Seguir contas privadas
-							</label>
+						<div class="flex items-center gap-3 cursor-pointer" @click="followPrivate = !followPrivate">
+							<Checkbox v-model="followPrivate" class="pointer-events-none" />
+							<span class="text-sm select-none">Seguir contas privadas</span>
 						</div>
 
-						<div class="flex items-center gap-3">
-							<Checkbox id="follow-followers" v-model:checked="followAlreadyFollowers" />
-							<label for="follow-followers" class="text-sm cursor-pointer select-none">
-								Seguir contas que já me seguem
-							</label>
+						<div class="flex items-center gap-3 cursor-pointer" @click="followAlreadyFollowers = !followAlreadyFollowers">
+							<Checkbox v-model="followAlreadyFollowers" class="pointer-events-none" />
+							<span class="text-sm select-none">Seguir contas que já me seguem</span>
 						</div>
 
 						<div class="flex flex-col gap-2">
-							<div class="flex items-center gap-3">
-								<Checkbox id="min-followers" v-model="filterByFollowers" />
-								<label for="min-followers" class="text-sm cursor-pointer select-none">
-									Seguir apenas contas com mínimo de seguidores
-								</label>
+							<div class="flex items-center gap-3 cursor-pointer" @click="filterByFollowers = !filterByFollowers">
+								<Checkbox v-model="filterByFollowers" class="pointer-events-none" />
+								<span class="text-sm select-none">Seguir apenas contas com mínimo de seguidores</span>
 							</div>
 							<div v-if="filterByFollowers" class="ml-7">
 								<Input
