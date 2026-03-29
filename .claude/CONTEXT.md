@@ -2,129 +2,188 @@
 
 ## Objetivo do projeto
 
-Ferramenta para seguir automaticamente os seguidores de um perfil público do Instagram. O usuário fornece o `session_id` do cookie de sessão e o username do perfil alvo; a ferramenta itera por todos os seguidores e os segue com rate limiting para evitar bloqueio de conta.
+Ferramenta web para seguir automaticamente os seguidores de um perfil público do Instagram. O usuário fornece o `sessionid` do cookie de sessão e o username do perfil alvo; o bot itera por todos os seguidores e os segue com rate limiting configurável para evitar bloqueio de conta.
 
 ---
 
-## Histórico / branches
+## Branches
 
-- **`main`** — versão original em Node.js/TypeScript CLI (sem UI). Os arquivos `src/` foram deletados nessa branch durante a migração.
-- **`feature/migate-to-nuxt`** ← branch atual — migração para Nuxt 3 com interface web.
+- **`main`** — versão original CLI em Node.js/TypeScript (arquivos `src/` removidos durante migração)
+- **`feature/migate-to-nuxt`** ← branch atual — app web completa com Nuxt 4
 
 ---
 
-## Stack atual (branch feature/migate-to-nuxt)
+## Stack
 
 | Camada | Tecnologia |
 |---|---|
 | Framework | Nuxt 4 (`nuxt ^4.4.2`) |
 | UI Components | shadcn-vue (estilo `new-york`, prefixo vazio) |
 | CSS | Tailwind CSS v4 via `@tailwindcss/vite` + `tw-animate-css` |
-| Componentes base | reka-ui ^2.2 |
+| Componentes base | reka-ui |
+| Ícones | lucide-vue-next |
+| HTTP Client | axios |
 | Utilities | `@vueuse/core`, `clsx`, `tailwind-merge` |
 | Linguagem | TypeScript |
-| Runtime | Vue 3 + vue-router 5 |
 
 ---
 
-## Estrutura de arquivos relevante
+## Estrutura de arquivos
 
 ```
 instagram-controller/
 ├── app/
-│   ├── app.vue                        # Entrada da aplicação (usa <NuxtPage />)
+│   ├── app.vue                        # Entrada (NuxtPage + TooltipProvider global)
 │   ├── assets/css/tailwind.css        # Tema CSS com variáveis oklch (light + dark)
 │   ├── lib/utils.ts                   # cn() helper (clsx + tailwind-merge)
 │   ├── pages/
-│   │   └── index.vue                  # Página principal (única página até agora)
+│   │   └── index.vue                  # Página principal — formulário + tela de progresso
 │   └── components/ui/                 # Componentes shadcn instalados
-│       ├── badge/
-│       ├── card/
-│       ├── input/
-│       ├── label/
-│       └── radio-group/
-├── nuxt.config.ts                     # Config do Nuxt (shadcn-nuxt module, tailwind vite plugin)
-├── components.json                    # Config do shadcn-vue CLI
-├── tsconfig.json                      # Referência para os tsconfigs gerados pelo Nuxt
-└── public/                            # favicon.ico, robots.txt
+│       ├── badge/, card/, checkbox/
+│       ├── input/, label/, radio-group/, tooltip/
+├── server/
+│   ├── api/follow/
+│   │   ├── start.post.ts              # POST — inicia o job em background
+│   │   ├── status.get.ts              # GET  — SSE com eventos de progresso em tempo real
+│   │   └── stop.post.ts               # POST — seta flag shouldStop no job ativo
+│   └── utils/
+│       ├── instagram-client.ts        # Classe HTTP para o Instagram (axios)
+│       ├── rate-limiter.ts            # Controle de limites por hora/dia
+│       ├── runner.ts                  # Loop principal de seguimento
+│       ├── job-manager.ts             # Estado do job ativo + sistema de listeners SSE
+│       └── helpers.ts                 # sleep, randomDelay, formatDuration
+├── nuxt.config.ts
+├── components.json                    # Config shadcn-vue CLI
+└── tsconfig.json
 ```
 
 ---
 
 ## Página principal (`app/pages/index.vue`)
 
-Card centralizado na tela com:
+Duas views no mesmo componente, alternadas pelo estado `running`:
 
-1. **Input Session ID** — `type="password"`, v-model `sessionId`
-2. **Input Usuário alvo** — placeholder `@username`, v-model `targetUser`
-3. **RadioGroup de modos de seguimento:**
+**Formulário (view inicial):**
+- Input Session ID (`type="password"`) com tooltip explicando como obter o cookie
+- Input Usuário alvo com tooltip
+- RadioGroup de modos de seguimento com tooltip
 
-| value | Label | Por hora | Por dia | Badge |
-|---|---|---|---|---|
-| `ultra-safe` | Ultra Segura | 20 | 60 | Mínimo risco (secondary) |
-| `safe` | Segura *(padrão)* | 40 | 120 | Recomendado (default) |
-| `risky` | Arriscada | 80 | 300 | Alto risco (destructive) |
+| value | Label | Por hora | Por dia |
+|---|---|---|---|
+| `ultra-safe` | Ultra Segura | 20 | 60 |
+| `safe` | Segura *(padrão)* | 40 | 120 |
+| `risky` | Arriscada | 80 | 300 |
 
-4. **Botão "Iniciar seguimento"** — desabilitado se `sessionId` ou `targetUser` estiver vazio. **Ainda não tem lógica de backend/API conectada.**
+- Checkboxes de filtros: seguir contas privadas, seguir quem já me segue, mínimo de seguidores (com input condicional)
+- Botão "Iniciar seguimento" → POST `/api/follow/start` + abre SSE
+
+**Tela de progresso:**
+- Badge de status (Em andamento / Pausado / Concluído / Erro / Interrompido)
+- Barra de progresso com percentual
+- Cards de contadores: Seguidos / Pulados
+- Aviso de pausa por rate limit (com ícone Clock)
+- Log em tempo real (fonte monospace, auto-scroll, colorização por tipo de linha)
+- Botão "Parar seguimento" → POST `/api/follow/stop`
+- Botão "Novo seguimento" (quando encerrado)
 
 ---
 
-## Lógica original (branch main — referência para reimplementação no Nuxt)
+## Backend — InstagramClient (`server/utils/instagram-client.ts`)
 
-### InstagramClient (`src/follow-followers/instagram-client.ts`)
+Dois clientes axios:
+- `webClient` → `https://www.instagram.com` (User-Agent browser)
+- `mobileClient` → `https://i.instagram.com` (User-Agent Android)
 
-Classe que faz todas as chamadas HTTP ao Instagram. Usa dois clientes axios:
-- `webClient` → `https://www.instagram.com` com User-Agent de browser
-- `mobileClient` → `https://i.instagram.com` com User-Agent Android
-
-**Métodos principais:**
-- `initializeSession()` — GET na home do IG para capturar `csrftoken` e cookies extras
-- `fetchUserProfile(username)` — tenta 3 estratégias em sequência:
-  1. `/api/v1/users/search/` (mobile)
-  2. Scraping do HTML do perfil
-  3. `/api/v1/users/web_profile_info/` (web, mais rate-limited)
-- `fetchFollowersPage(userId, maxId?)` — `/api/v1/friendships/{userId}/followers/` paginado (50 por página)
-- `fetchFriendshipStatus(userId)` — `/api/v1/friendships/show/{userId}/`
-- `followUser(userId)` — POST `/api/v1/friendships/create/{userId}/`
-- `executeWithRetry(fn, maxAttempts=3)` — retry com backoff exponencial em HTTP 429/503
-
-**Cabeçalhos importantes:**
+**Cabeçalhos obrigatórios:**
 - `X-IG-App-ID: 936619743392459`
-- `X-CSRFToken` (extraído dos cookies na inicialização)
-- Cookie header construído manualmente com `sessionid` + `csrftoken` + extras
+- `X-CSRFToken` (extraído dos cookies em `initializeSession`)
+- Cookie header construído manualmente: `sessionid` + `csrftoken` + cookies extras
 
-### RateLimiter (`src/follow-followers/rate-limiter.ts`)
+**Métodos públicos:**
 
-Controla os limites de seguimento usando timestamps em memória:
-- `MAX_FOLLOWS_PER_HOUR = 40`
-- `MAX_FOLLOWS_PER_DAY = 120`
-- `pauseIfRateLimitReached()` — calcula o tempo de espera até o slot mais antigo expirar e dorme
+| Método | Endpoint | Descrição |
+|---|---|---|
+| `initializeSession()` | GET `https://www.instagram.com/` | Captura csrftoken e cookies extras |
+| `fetchUserProfile(username)` | search → `/api/v1/users/{pk}/info/` | Busca pk via search (mobile, baixo rate-limit), depois info completa por pk |
+| `fetchFollowersPage(userId, maxId?)` | `/api/v1/friendships/{userId}/followers/` | Paginado, 50 por página |
+| `fetchFriendshipStatus(userId)` | `/api/v1/friendships/show/{userId}/` | Checa following/followed_by/outgoing_request |
+| `followUser(userId)` | POST `/api/v1/friendships/create/{userId}/` | Executa o follow |
+
+**Callbacks:**
+- `onRetry?: (status, waitSec, attempt) => void` — chamado em cada backoff por 429/503
+
+**Decisão de design — `fetchUserProfile`:**
+- Usa search (mobile) para obter o `pk`, depois `/api/v1/users/{pk}/info/` para o perfil completo com `follower_count`
+- O endpoint `web_profile_info` (web) foi abandonado para busca de perfil por ser altamente rate-limited (429 consistente)
+- A combinação search → info via mobileClient é estável e sempre retorna `follower_count`
+
+---
+
+## Backend — RateLimiter (`server/utils/rate-limiter.ts`)
+
+Limites configuráveis por modo:
+
+```ts
+LIMITS = {
+  'ultra-safe': { perHour: 20, perDay: 60 },
+  'safe':       { perHour: 40, perDay: 120 },
+  'risky':      { perHour: 80, perDay: 300 },
+}
+```
+
+- `pauseIfRateLimitReached()` — calcula espera até o slot mais antigo expirar
 - `recordFollowTimestamp()` — registra cada follow bem-sucedido
+- `onPause?: (reason, durationMs) => void` — callback para logar/exibir pausa
 
-### Runner (`src/follow-followers/runner.ts`)
+---
 
-Loop principal de execução:
-- `BATCH_SIZE = 10` follows antes de uma pausa longa (2–5 min)
-- `MIN_DELAY_SEC = 30`, `MAX_DELAY_SEC = 75` entre follows individuais
-- Verifica `friendshipStatus` antes de tentar seguir (pula se já segue, pedido pendente ou já segue de volta)
-- Trata HTTP 429/400 com pausa de 15 minutos
-- Pagina todos os seguidores com `next_max_id` até acabar
+## Backend — Runner (`server/utils/runner.ts`)
+
+Loop principal que roda em background (fire-and-forget via `runFollowJob`):
+
+**Constantes:**
+- `BATCH_SIZE = 10` — pausa longa a cada 10 follows (2–5 min)
+- `MIN_DELAY_SEC = 30`, `MAX_DELAY_SEC = 75` — delay entre follows individuais
+
+**Fluxo por usuário:**
+1. Filtro: conta privada (se `followPrivate = false`, pula)
+2. Filtro: mínimo de seguidores — chama `fetchUserProfile` para obter count confiável; se não conseguir, deixa passar
+3. Check de friendship status — pula se já segue ou pedido pendente
+4. Filtro: já me segue (se `followAlreadyFollowers = false`, pula)
+5. `pauseIfRateLimitReached()` → `followUser()` → delay aleatório
+
+**Tratamento de erros:**
+- HTTP 429/400 no follow → pausa 15 min
+- Erro em `fetchFollowersPage` → log + retry em 60s
+- Backoff em `executeWithRetry`: 30s, 60s, 90s (para follow e fetchFollowers)
+- Perfil lookup: `maxAttempts = 3` no search e no info
+
+---
+
+## Backend — Job Manager (`server/utils/job-manager.ts`)
+
+Um único job ativo por vez (estado em memória do Nitro). Estrutura:
+
+```ts
+interface Job {
+  status: 'running' | 'paused' | 'done' | 'error' | 'stopped'
+  shouldStop: boolean
+  followed: number
+  skipped: number
+  total: number
+  listeners: Set<(event: JobEvent) => void>
+}
+```
+
+Eventos SSE: `log`, `progress`, `pause`, `done`, `error`, `stopped`
 
 ---
 
 ## Convenções do projeto
 
 - Idioma da interface: **português brasileiro**
-- Componentes shadcn são importados explicitamente (sem auto-import de `@/components/ui/...`)
-- CSS theme usa **oklch** color space (não hex/hsl)
-- `cn()` helper em `app/lib/utils.ts` para merge de classes Tailwind
-- Tailwind v4 — sem arquivo `tailwind.config.js`, config via `@theme` no CSS
-
----
-
-## Próximos passos prováveis
-
-- Criar server routes Nuxt (`server/api/`) para encapsular a lógica do `InstagramClient` e `RateLimiter`
-- Conectar o botão "Iniciar seguimento" a uma API route
-- Adicionar feedback em tempo real do progresso (SSE ou polling)
-- Possível page de status/progresso separada
+- Componentes shadcn importados explicitamente (sem auto-import)
+- CSS theme usa **oklch** color space (não hex/hsl/rgb)
+- `cn()` em `app/lib/utils.ts` para merge de classes Tailwind
+- Tailwind v4 — configuração via `@theme` no CSS, sem `tailwind.config.js`
+- Alias `~` e `@` apontam para `app/` no Nuxt 4 — server files usam imports relativos (`../../utils/...`)
