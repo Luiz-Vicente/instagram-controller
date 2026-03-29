@@ -36,12 +36,24 @@
 									</TooltipContent>
 								</Tooltip>
 							</div>
-							<Input
-								id="session-id"
-								v-model="sessionId"
-								type="password"
-								placeholder="Cole aqui o seu session ID"
-							/>
+							<div class="relative">
+								<Input
+									id="session-id"
+									v-model="sessionId"
+									:type="showSessionId ? 'text' : 'password'"
+									placeholder="Cole aqui o seu session ID"
+									class="pr-9"
+								/>
+								<button
+									type="button"
+									class="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+									:aria-label="showSessionId ? 'Ocultar session ID' : 'Mostrar session ID'"
+									@click="showSessionId = !showSessionId"
+								>
+									<EyeOff v-if="showSessionId" class="w-4 h-4" />
+									<Eye v-else class="w-4 h-4" />
+								</button>
+							</div>
 						</div>
 
 						<div class="flex flex-col gap-1.5">
@@ -244,10 +256,11 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { Badge } from '@/components/ui/badge'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
-import { Info, Loader2, Clock, Sun, Moon } from 'lucide-vue-next'
+import { Info, Loader2, Clock, Sun, Moon, Eye, EyeOff } from 'lucide-vue-next'
 
 // ── Form state ──────────────────────────────────────────────────────────────
 const sessionId = ref('')
+const showSessionId = ref(false)
 const targetUser = ref('')
 const followMode = ref('safe')
 const followPrivate = ref(false)
