@@ -113,14 +113,14 @@ export class InstagramClient {
     this.mobileClient.defaults.headers.common['X-CSRFToken'] = this.csrfToken
   }
 
-  async fetchUserProfile(username: string): Promise<UserInfo> {
+  async fetchUserProfile(username: string, maxAttempts = 3): Promise<UserInfo> {
     // Step 1: get pk via search (low rate-limit)
     const searchRes = await this.executeWithRetry(
       () => this.mobileClient.get('/api/v1/users/search/', {
         params: { q: username, count: 10 },
         headers: { Cookie: this.buildCookieHeader() },
       }),
-      3
+      maxAttempts
     )
 
     type SearchUser = { pk: string; username: string }
@@ -133,7 +133,7 @@ export class InstagramClient {
       () => this.mobileClient.get(`/api/v1/users/${match.pk}/info/`, {
         headers: { Cookie: this.buildCookieHeader() },
       }),
-      3
+      maxAttempts
     )
 
     const infoData = infoRes.data as { user: { pk: string; username: string; full_name: string; is_private: boolean; follower_count: number } }
@@ -157,11 +157,12 @@ export class InstagramClient {
     return { users: data.users ?? [], next_max_id: data.next_max_id }
   }
 
-  async fetchFriendshipStatus(userId: string): Promise<FriendshipStatus> {
+  async fetchFriendshipStatus(userId: string, maxAttempts = 3): Promise<FriendshipStatus> {
     const res = await this.executeWithRetry(() =>
       this.mobileClient.get(`/api/v1/friendships/show/${userId}/`, {
         headers: { Cookie: this.buildCookieHeader() },
-      })
+      }),
+      maxAttempts
     )
 
     const data = res.data as { following?: boolean; followed_by?: boolean; outgoing_request?: boolean }

@@ -90,7 +90,7 @@ export async function runFollowJob(config: RunnerConfig, job: Job): Promise<void
         if (config.filterByFollowers && config.minFollowers > 0) {
           let followerCount: number | undefined
           try {
-            const profile = await ig.fetchUserProfile(user.username)
+            const profile = await ig.fetchUserProfile(user.username, 1)
             followerCount = profile.follower_count
           } catch {
             // couldn't fetch — let the account through
@@ -106,7 +106,7 @@ export async function runFollowJob(config: RunnerConfig, job: Job): Promise<void
         // Check friendship status
         let fs
         try {
-          fs = await ig.fetchFriendshipStatus(user.pk)
+          fs = await ig.fetchFriendshipStatus(user.pk, 1)
         } catch {
           fs = { following: false, followed_by: false, outgoing_request: false }
         }
