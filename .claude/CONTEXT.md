@@ -187,3 +187,22 @@ Eventos SSE: `log`, `progress`, `pause`, `done`, `error`, `stopped`
 - `cn()` em `app/lib/utils.ts` para merge de classes Tailwind
 - Tailwind v4 — configuração via `@theme` no CSS, sem `tailwind.config.js`
 - Alias `~` e `@` apontam para `app/` no Nuxt 4 — server files usam imports relativos (`../../utils/...`)
+
+---
+
+## Padrões aprendidos / armadilhas
+
+### Checkbox do shadcn-vue
+
+`v-model:checked` e `:checked + @update:checked` **não funcionam** para atualizar refs do Vue — o evento `update:checked` não propaga corretamente do `CheckboxRoot` (reka-ui) para o componente pai.
+
+**Padrão correto:**
+```html
+<div class="flex items-center gap-3 cursor-pointer" @click="valor = !valor">
+  <Checkbox v-model="valor" class="pointer-events-none" />
+  <span class="text-sm select-none">Label</span>
+</div>
+```
+- O estado é controlado pelo `@click` no container
+- O Checkbox recebe `v-model` apenas para exibição visual do estado
+- `pointer-events-none` evita duplo disparo (clique no Checkbox + clique no container)

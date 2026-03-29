@@ -1,5 +1,14 @@
 <template>
 	<div class="min-h-screen bg-background flex items-center justify-center p-6">
+		<button
+			class="fixed top-4 right-4 p-2 rounded-md border border-border bg-background text-foreground hover:bg-muted transition-colors"
+			:aria-label="isDark ? 'Ativar modo claro' : 'Ativar modo escuro'"
+			@click="toggleDark()"
+		>
+			<Sun v-if="isDark" class="w-4 h-4" />
+			<Moon v-else class="w-4 h-4" />
+		</button>
+
 		<TooltipProvider>
 			<!-- Config form -->
 			<Card v-if="!running" class="w-full max-w-lg">
@@ -221,6 +230,10 @@
 
 <script setup lang="ts">
 import { ref, computed, nextTick } from 'vue'
+import { useDark, useToggle } from '@vueuse/core'
+
+const isDark = useDark()
+const toggleDark = useToggle(isDark)
 import {
 	Card, CardHeader, CardTitle, CardDescription,
 	CardContent, CardFooter,
@@ -231,7 +244,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { Badge } from '@/components/ui/badge'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
-import { Info, Loader2, Clock } from 'lucide-vue-next'
+import { Info, Loader2, Clock, Sun, Moon } from 'lucide-vue-next'
 
 // ── Form state ──────────────────────────────────────────────────────────────
 const sessionId = ref('')
