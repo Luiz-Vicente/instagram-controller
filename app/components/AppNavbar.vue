@@ -2,7 +2,7 @@
 	<nav class="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
 		<div class="mx-auto max-w-5xl flex h-12 items-center justify-between px-4">
 			<NuxtLink to="/" class="flex items-center gap-2 font-semibold text-sm">
-				Seguidor de Seguidores
+				{{ $t('nav.title') }}
 				<Badge variant="secondary" class="text-xs">Beta</Badge>
 			</NuxtLink>
 
@@ -12,7 +12,7 @@
 					class="text-xs text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1 px-2 py-1"
 				>
 					<Info class="w-3.5 h-3.5" />
-					Como funciona
+					{{ $t('nav.howItWorks') }}
 				</NuxtLink>
 				<button
 					class="p-1.5 rounded-md border border-border text-foreground hover:bg-muted transition-colors"

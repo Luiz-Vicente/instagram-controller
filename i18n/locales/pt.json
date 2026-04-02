@@ -1,0 +1,135 @@
+{
+  "nav": {
+    "title": "Seguidor de Seguidores",
+    "howItWorks": "Como funciona"
+  },
+  "form": {
+    "title": "Configuração",
+    "description": "Configure suas credenciais e o modo de seguimento.",
+    "followedToday": "{count} seguidos hoje",
+    "errorStarting": "Erro ao iniciar.",
+    "sessionId": {
+      "label": "Session ID",
+      "placeholder": "Cole aqui o seu session ID",
+      "show": "Mostrar session ID",
+      "hide": "Ocultar session ID",
+      "tooltip": "Token de autenticação da sua sessão no Instagram. Para obtê-lo, acesse o Instagram pelo navegador, abra o DevTools (F12), vá em Application → Cookies e copie o valor do cookie sessionid."
+    },
+    "targetUser": {
+      "label": "Usuário alvo",
+      "placeholder": "{'@'}username",
+      "tooltip": "O perfil cujos seguidores você quer seguir. O bot irá percorrer a lista de seguidores desse usuário e seguir cada um deles conforme os filtros configurados."
+    },
+    "mode": {
+      "label": "Modo de seguimento",
+      "tooltip": "Define a velocidade dos seguimentos. Modos mais rápidos aumentam o risco de bloqueio temporário pela plataforma. Recomendamos o modo Segura para uso contínuo.",
+      "rateInfo": "{perHour} seguimentos/hora · {perDay} seguimentos/dia",
+      "ultraSafe": { "label": "Ultra Segura", "badge": "Mínimo risco" },
+      "safe": { "label": "Segura", "badge": "Recomendado" },
+      "risky": { "label": "Arriscada", "badge": "Alto risco" }
+    },
+    "filters": {
+      "label": "Filtros de conta",
+      "private": "Seguir contas privadas",
+      "alreadyFollowers": "Seguir contas que já me seguem",
+      "minFollowers": "Seguir apenas contas com mínimo de seguidores",
+      "minFollowersPlaceholder": "Mínimo de seguidores"
+    },
+    "submit": "Iniciar seguimento",
+    "submitting": "Iniciando..."
+  },
+  "progress": {
+    "title": "Seguindo {'@'}{user}",
+    "description": "Acompanhe o progresso em tempo real.",
+    "followed": "Seguidos",
+    "skipped": "Pulados",
+    "today": "Hoje",
+    "of": "de",
+    "awaitingLogs": "Aguardando logs...",
+    "stop": "Parar seguimento",
+    "stopping": "Parando...",
+    "newFollow": "Novo seguimento"
+  },
+  "status": {
+    "running": "Em andamento",
+    "paused": "Pausado",
+    "done": "Concluído",
+    "error": "Erro",
+    "stopped": "Interrompido"
+  },
+  "about": {
+    "title": "Como funciona",
+    "subtitle": "Entenda os mecanismos de segurança, os limites configurados e os riscos de cada modo de operação.",
+    "back": "Voltar",
+    "overview": {
+      "title": "Visão geral",
+      "p1": "O app percorre a lista de seguidores de um perfil alvo e tenta seguir cada conta, respeitando os filtros configurados. Toda a lógica roda no servidor local — nenhum dado é enviado para serviços externos além do próprio Instagram.",
+      "p2": "Para cada conta na lista, o app verifica o status de amizade, aplica os filtros ativos e, se tudo passar, executa o follow. Entre cada operação, há pausas deliberadas para simular comportamento humano e reduzir o risco de detecção."
+    },
+    "mechanisms": {
+      "title": "Mecanismos de defesa",
+      "delays": {
+        "title": "Delays entre requisições",
+        "body": "Após cada verificação de status de amizade, o app aguarda entre 5 e 15 segundos. Após cada follow bem-sucedido, a espera aumenta para 60 a 120 segundos. Esses intervalos aleatórios evitam padrões regulares que sistemas de detecção identificam facilmente."
+      },
+      "batch": {
+        "title": "Pausas de lote",
+        "body": "A cada 10 follows consecutivos, o app faz uma pausa extra de 2 a 5 minutos. Isso reproduz o comportamento de alguém que para para ver o feed, responder mensagens ou simplesmente descansar."
+      },
+      "rateLimit": {
+        "title": "Janela deslizante de rate limit",
+        "body": "Os limites horários e diários são aplicados com janela deslizante real — não um simples contador que reinicia à meia-noite. Se o limite horário for atingido, o app aguarda até que o follow mais antigo saia da janela de 60 minutos. O histórico do dia é salvo no navegador e carregado na próxima sessão, impedindo que fechar e reabrir o app zere o contador."
+      },
+      "retry": {
+        "title": "Retry com backoff em erros de API",
+        "body": "Nas chamadas críticas (busca de perfil alvo, listagem de seguidores), o app tenta novamente em caso de erro HTTP 429 ou 503, aguardando 30s, 60s e 90s entre cada tentativa. Para verificações de filtro, a estratégia é falhar rápido — se a API não responder, a conta é deixada passar em vez de travar o processo por minutos."
+      }
+    },
+    "modes": {
+      "title": "Modos de seguimento e risco",
+      "intro": "Os modos controlam quantos follows o app executa por hora e por dia. Volumes mais altos aumentam a probabilidade de acionamento dos sistemas de defesa do Instagram.",
+      "ultraSafe": {
+        "label": "Ultra Segura",
+        "badge": "Mínimo risco",
+        "rate": "20 follows/hora · 60 follows/dia",
+        "body": "Ritmo muito abaixo dos limites internos do Instagram. Adequado para contas novas ou que já sofreram alguma restrição. Com os delays atuais, esse limite raramente será atingido pelo rate limiter — o próprio tempo entre as operações já mantém o ritmo baixo."
+      },
+      "safe": {
+        "label": "Segura",
+        "badge": "Recomendado",
+        "rate": "40 follows/hora · 120 follows/dia",
+        "body": "Equilíbrio entre velocidade e segurança. Contas com mais de 6 meses de uso regular geralmente toleram esse volume sem problemas. É o modo recomendado para uso contínuo e diário."
+      },
+      "risky": {
+        "label": "Arriscada",
+        "badge": "Alto risco",
+        "rate": "80 follows/hora · 300 follows/dia",
+        "body": "Volume próximo aos limites internos do Instagram. Pode acionar bloqueios temporários de ação, redução de alcance (shadowban) ou, em casos repetidos, suspensão da conta. Use apenas em contas estabelecidas e de forma pontual, nunca como rotina diária."
+      }
+    },
+    "consequences": {
+      "title": "O que pode acontecer se os limites forem ultrapassados",
+      "actionBlocked": {
+        "label": "Action Blocked",
+        "body": "O Instagram bloqueia temporariamente a ação de seguir, geralmente por 24 a 48 horas. A conta continua funcionando normalmente para outras ações. É o aviso mais comum e geralmente passa sem consequências se o comportamento for corrigido."
+      },
+      "shadowban": {
+        "label": "Shadowban",
+        "body": "O conteúdo da conta para de aparecer em hashtags e na aba Explorar sem aviso. O perfil continua existindo e publicando normalmente, mas o alcance orgânico cai drasticamente. Pode durar dias ou semanas."
+      },
+      "suspension": {
+        "label": "Suspensão temporária ou permanente",
+        "body": "Em casos de uso abusivo e reincidente, o Instagram pode suspender a conta temporariamente ou permanentemente. Essa é a situação mais grave e raramente acontece por automação de follows isolada, mas o risco existe especialmente em contas novas ou com histórico de violações."
+      }
+    },
+    "bestPractices": {
+      "title": "Boas práticas",
+      "p1": "Use o modo Segura como padrão. Aumente apenas em situações pontuais.",
+      "p2": "Não execute o app 24 horas por dia. Simule um comportamento humano com períodos de uso e de inatividade.",
+      "p3": "Se receber um \"Action Blocked\", pare o app imediatamente e aguarde pelo menos 24 horas antes de retomar.",
+      "p4": "Prefira contas alvo com seguidores no mesmo nicho do seu perfil — além de mais seguro, o engajamento tende a ser maior.",
+      "p5": "O filtro de mínimo de seguidores consome chamadas extras à API. Use-o com parcimônia ou defina um valor razoável para o seu nicho.",
+      "p6": "O Session ID expira quando você faz logout do Instagram no navegador. Gere um novo sempre que o app reportar erro de autenticação."
+    }
+  }
+}

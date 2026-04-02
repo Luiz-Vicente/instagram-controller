@@ -6,12 +6,12 @@
 			<Card v-if="!running" class="w-full">
 				<CardHeader>
 					<div class="flex items-center justify-between gap-2">
-						<CardTitle class="text-xl sm:text-2xl">Configuração</CardTitle>
+						<CardTitle class="text-xl sm:text-2xl">{{ $t('form.title') }}</CardTitle>
 						<span v-if="followedToday > 0" class="text-xs text-muted-foreground border rounded-md px-2 py-1 shrink-0">
-							{{ followedToday }} seguidos hoje
+							{{ $t('form.followedToday', { count: followedToday }) }}
 						</span>
 					</div>
-					<CardDescription>Configure suas credenciais e o modo de seguimento.</CardDescription>
+					<CardDescription>{{ $t('form.description') }}</CardDescription>
 				</CardHeader>
 
 				<CardContent class="flex flex-col gap-6">
@@ -26,11 +26,7 @@
 											<Info class="w-3.5 h-3.5" />
 										</button>
 									</TooltipTrigger>
-									<TooltipContent class="max-w-64">
-										Token de autenticação da sua sessão no Instagram. Para obtê-lo, acesse o Instagram pelo navegador,
-										abra o DevTools (F12), vá em Application → Cookies e copie o valor do cookie
-										<strong>sessionid</strong>.
-									</TooltipContent>
+									<TooltipContent class="max-w-64">{{ $t('form.sessionId.tooltip') }}</TooltipContent>
 								</Tooltip>
 							</div>
 							<div class="relative">
@@ -38,13 +34,13 @@
 									id="session-id"
 									v-model="sessionId"
 									:type="showSessionId ? 'text' : 'password'"
-									placeholder="Cole aqui o seu session ID"
+									:placeholder="$t('form.sessionId.placeholder')"
 									class="pr-9"
 								/>
 								<button
 									type="button"
 									class="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
-									:aria-label="showSessionId ? 'Ocultar session ID' : 'Mostrar session ID'"
+									:aria-label="showSessionId ? $t('form.sessionId.hide') : $t('form.sessionId.show')"
 									@click="showSessionId = !showSessionId"
 								>
 									<EyeOff v-if="showSessionId" class="w-4 h-4" />
@@ -55,23 +51,20 @@
 
 						<div class="flex flex-col gap-1.5">
 							<div class="flex items-center gap-1.5">
-								<Label for="target-user">Usuário alvo</Label>
+								<Label for="target-user">{{ $t('form.targetUser.label') }}</Label>
 								<Tooltip>
 									<TooltipTrigger as-child>
 										<button type="button" class="text-muted-foreground hover:text-foreground transition-colors">
 											<Info class="w-3.5 h-3.5" />
 										</button>
 									</TooltipTrigger>
-									<TooltipContent class="max-w-64">
-										O perfil cujos seguidores você quer seguir. O bot irá percorrer a lista de seguidores desse usuário e
-										seguir cada um deles conforme os filtros configurados.
-									</TooltipContent>
+									<TooltipContent class="max-w-64">{{ $t('form.targetUser.tooltip') }}</TooltipContent>
 								</Tooltip>
 							</div>
 							<Input
 								id="target-user"
 								v-model="targetUser"
-								placeholder="@username"
+								:placeholder="$t('form.targetUser.placeholder')"
 							/>
 						</div>
 					</div>
@@ -79,17 +72,14 @@
 					<!-- Modos de seguimento -->
 					<div class="flex flex-col gap-3">
 						<div class="flex items-center gap-1.5">
-							<Label>Modo de seguimento</Label>
+							<Label>{{ $t('form.mode.label') }}</Label>
 							<Tooltip>
 								<TooltipTrigger as-child>
 									<button type="button" class="text-muted-foreground hover:text-foreground transition-colors">
 										<Info class="w-3.5 h-3.5" />
 									</button>
 								</TooltipTrigger>
-								<TooltipContent class="max-w-64">
-									Define a velocidade dos seguimentos. Modos mais rápidos aumentam o risco de bloqueio temporário pela
-									plataforma. Recomendamos o modo <strong>Segura</strong> para uso contínuo.
-								</TooltipContent>
+								<TooltipContent class="max-w-64">{{ $t('form.mode.tooltip') }}</TooltipContent>
 							</Tooltip>
 						</div>
 						<RadioGroup v-model="followMode" class="flex flex-col gap-3">
@@ -107,7 +97,7 @@
 										<Badge :variant="mode.badgeVariant">{{ mode.badge }}</Badge>
 									</div>
 									<span class="text-xs text-muted-foreground">
-										{{ mode.perHour }} seguimentos/hora · {{ mode.perDay }} seguimentos/dia
+										{{ $t('form.mode.rateInfo', { perHour: mode.perHour, perDay: mode.perDay }) }}
 									</span>
 								</div>
 							</label>
@@ -116,22 +106,22 @@
 
 					<!-- Filtros de conta -->
 					<div class="flex flex-col gap-3">
-						<Label>Filtros de conta</Label>
+						<Label>{{ $t('form.filters.label') }}</Label>
 
 						<div class="flex items-center gap-3 cursor-pointer" @click="followPrivate = !followPrivate">
 							<Checkbox v-model="followPrivate" class="pointer-events-none" />
-							<span class="text-sm select-none">Seguir contas privadas</span>
+							<span class="text-sm select-none">{{ $t('form.filters.private') }}</span>
 						</div>
 
 						<div class="flex items-center gap-3 cursor-pointer" @click="followAlreadyFollowers = !followAlreadyFollowers">
 							<Checkbox v-model="followAlreadyFollowers" class="pointer-events-none" />
-							<span class="text-sm select-none">Seguir contas que já me seguem</span>
+							<span class="text-sm select-none">{{ $t('form.filters.alreadyFollowers') }}</span>
 						</div>
 
 						<div class="flex flex-col gap-2">
 							<div class="flex items-center gap-3 cursor-pointer" @click="filterByFollowers = !filterByFollowers">
 								<Checkbox v-model="filterByFollowers" class="pointer-events-none" />
-								<span class="text-sm select-none">Seguir apenas contas com mínimo de seguidores</span>
+								<span class="text-sm select-none">{{ $t('form.filters.minFollowers') }}</span>
 							</div>
 							<div v-if="filterByFollowers" class="ml-7">
 								<Input
@@ -139,7 +129,7 @@
 									v-model="minFollowers"
 									type="number"
 									min="0"
-									placeholder="Mínimo de seguidores"
+									:placeholder="$t('form.filters.minFollowersPlaceholder')"
 									class="w-48"
 								/>
 							</div>
@@ -154,7 +144,7 @@
 						@click="start"
 					>
 						<Loader2 v-if="starting" class="w-4 h-4 mr-2 animate-spin" />
-						{{ starting ? 'Iniciando...' : 'Iniciar seguimento' }}
+						{{ starting ? $t('form.submitting') : $t('form.submit') }}
 					</button>
 				</CardFooter>
 			</Card>
@@ -163,18 +153,18 @@
 			<Card v-else class="w-full">
 				<CardHeader>
 					<div class="flex items-center justify-between gap-2">
-						<CardTitle class="text-xl sm:text-2xl truncate">Seguindo @{{ targetUser.replace(/^@/, '') }}</CardTitle>
+						<CardTitle class="text-xl sm:text-2xl truncate">{{ $t('progress.title', { user: targetUser.replace(/^@/, '') }) }}</CardTitle>
 						<Badge :variant="statusBadgeVariant" class="shrink-0">{{ statusLabel }}</Badge>
 					</div>
-					<CardDescription>Acompanhe o progresso em tempo real.</CardDescription>
+					<CardDescription>{{ $t('progress.description') }}</CardDescription>
 				</CardHeader>
 
 				<CardContent class="flex flex-col gap-5">
 					<!-- Progress bar -->
 					<div class="flex flex-col gap-2">
 						<div class="flex justify-between text-sm text-muted-foreground">
-							<span>{{ progress.followed }} seguidos</span>
-							<span v-if="progress.total > 0">{{ progressPct }}% de {{ progress.total.toLocaleString('pt-BR') }}</span>
+							<span>{{ progress.followed }} {{ $t('progress.followed').toLowerCase() }}</span>
+							<span v-if="progress.total > 0">{{ progressPct }}% {{ $t('progress.of') }} {{ progress.total.toLocaleString(locale) }}</span>
 						</div>
 						<div class="w-full h-2 bg-muted rounded-full overflow-hidden">
 							<div
@@ -187,15 +177,15 @@
 					<!-- Stats -->
 					<div class="grid grid-cols-3 gap-2 sm:gap-3">
 						<div class="rounded-lg border p-2 sm:p-3 flex flex-col gap-0.5">
-							<span class="text-xs text-muted-foreground">Seguidos</span>
+							<span class="text-xs text-muted-foreground">{{ $t('progress.followed') }}</span>
 							<span class="text-xl sm:text-2xl font-semibold">{{ progress.followed }}</span>
 						</div>
 						<div class="rounded-lg border p-2 sm:p-3 flex flex-col gap-0.5">
-							<span class="text-xs text-muted-foreground">Pulados</span>
+							<span class="text-xs text-muted-foreground">{{ $t('progress.skipped') }}</span>
 							<span class="text-xl sm:text-2xl font-semibold">{{ progress.skipped }}</span>
 						</div>
 						<div class="rounded-lg border p-2 sm:p-3 flex flex-col gap-0.5">
-							<span class="text-xs text-muted-foreground">Hoje</span>
+							<span class="text-xs text-muted-foreground">{{ $t('progress.today') }}</span>
 							<span class="text-xl sm:text-2xl font-semibold">{{ followedToday }}</span>
 						</div>
 					</div>
@@ -213,7 +203,7 @@
 							<span v-for="(line, i) in logs" :key="i" :class="line.startsWith('[+]') ? 'text-green-600 dark:text-green-400' : line.startsWith('[!]') ? 'text-destructive' : 'text-muted-foreground'">
 								{{ line }}
 							</span>
-							<span v-if="logs.length === 0" class="text-muted-foreground italic">Aguardando logs...</span>
+							<span v-if="logs.length === 0" class="text-muted-foreground italic">{{ $t('progress.awaitingLogs') }}</span>
 						</div>
 					</div>
 				</CardContent>
@@ -226,14 +216,14 @@
 						@click="stop"
 					>
 						<Loader2 v-if="stopping" class="w-4 h-4 mr-2 animate-spin" />
-						{{ stopping ? 'Parando...' : 'Parar seguimento' }}
+						{{ stopping ? $t('progress.stopping') : $t('progress.stop') }}
 					</button>
 					<button
 						v-else
 						class="w-full inline-flex items-center justify-center rounded-md bg-primary text-primary-foreground text-sm font-medium h-9 px-4 py-2 transition-colors hover:bg-primary/90"
 						@click="reset"
 					>
-						Novo seguimento
+						{{ $t('progress.newFollow') }}
 					</button>
 				</CardFooter>
 			</Card>
@@ -244,6 +234,7 @@
 
 <script setup lang="ts">
 import { ref, computed, nextTick, onMounted } from 'vue'
+const { t, locale } = useI18n()
 import {
 	Card, CardHeader, CardTitle, CardDescription,
 	CardContent, CardFooter,
@@ -309,12 +300,12 @@ const progressPct = computed(() => {
 })
 
 const statusLabel = computed(() => ({
-	running: 'Em andamento',
-	paused: 'Pausado',
-	done: 'Concluído',
-	error: 'Erro',
-	stopped: 'Interrompido',
-}[jobStatus.value] ?? 'Em andamento'))
+	running: t('status.running'),
+	paused: t('status.paused'),
+	done: t('status.done'),
+	error: t('status.error'),
+	stopped: t('status.stopped'),
+}[jobStatus.value] ?? t('status.running')))
 
 const statusBadgeVariant = computed(() => ({
 	running: 'default',
@@ -348,7 +339,7 @@ async function start() {
 		pauseInfo.value = ''
 		openSSE()
 	} catch (err: unknown) {
-		const msg = (err as { data?: { message?: string } })?.data?.message ?? 'Erro ao iniciar.'
+		const msg = (err as { data?: { message?: string } })?.data?.message ?? t('form.errorStarting')
 		alert(msg)
 	} finally {
 		starting.value = false
@@ -429,30 +420,30 @@ function openSSE() {
 }
 
 // ── Follow modes data ────────────────────────────────────────────────────────
-const followModes = [
+const followModes = computed(() => [
 	{
 		value: 'ultra-safe',
-		label: 'Ultra Segura',
-		badge: 'Mínimo risco',
+		label: t('form.mode.ultraSafe.label'),
+		badge: t('form.mode.ultraSafe.badge'),
 		badgeVariant: 'secondary' as const,
 		perHour: 20,
 		perDay: 60,
 	},
 	{
 		value: 'safe',
-		label: 'Segura',
-		badge: 'Recomendado',
+		label: t('form.mode.safe.label'),
+		badge: t('form.mode.safe.badge'),
 		badgeVariant: 'default' as const,
 		perHour: 40,
 		perDay: 120,
 	},
 	{
 		value: 'risky',
-		label: 'Arriscada',
-		badge: 'Alto risco',
+		label: t('form.mode.risky.label'),
+		badge: t('form.mode.risky.badge'),
 		badgeVariant: 'destructive' as const,
 		perHour: 80,
 		perDay: 300,
 	},
-]
+])
 </script>
