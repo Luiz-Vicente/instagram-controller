@@ -2,6 +2,16 @@ export async function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms))
 }
 
+export async function interruptibleSleep(ms: number, shouldStop: () => boolean): Promise<void> {
+  const tick = 1000
+  let elapsed = 0
+  while (elapsed < ms) {
+    if (shouldStop()) return
+    await sleep(Math.min(tick, ms - elapsed))
+    elapsed += tick
+  }
+}
+
 export function randomDelay(minSec: number, maxSec: number): number {
   return (Math.floor(Math.random() * (maxSec - minSec + 1)) + minSec) * 1000
 }

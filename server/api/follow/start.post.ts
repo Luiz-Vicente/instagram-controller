@@ -15,6 +15,7 @@ export default defineEventHandler(async (event) => {
     followAlreadyFollowers: boolean
     filterByFollowers: boolean
     minFollowers: number
+    previousTimestamps?: number[]
   }
 
   if (!body.sessionId?.trim()) {
@@ -35,6 +36,7 @@ export default defineEventHandler(async (event) => {
     followAlreadyFollowers: body.followAlreadyFollowers ?? false,
     filterByFollowers: body.filterByFollowers ?? false,
     minFollowers: Number(body.minFollowers) || 0,
+    previousTimestamps: Array.isArray(body.previousTimestamps) ? body.previousTimestamps : [],
   }
 
   const job = createJob()

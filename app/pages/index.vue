@@ -1,19 +1,16 @@
 <template>
-	<div class="min-h-screen bg-background flex items-center justify-center p-6">
-		<button
-			class="fixed top-4 right-4 p-2 rounded-md border border-border bg-background text-foreground hover:bg-muted transition-colors"
-			:aria-label="isDark ? 'Ativar modo claro' : 'Ativar modo escuro'"
-			@click="toggleDark()"
-		>
-			<Sun v-if="isDark" class="w-4 h-4" />
-			<Moon v-else class="w-4 h-4" />
-		</button>
-
+	<div class="min-h-screen bg-background flex items-center justify-center p-3 sm:p-6">
 		<TooltipProvider>
+			<div class="w-full max-w-lg">
 			<!-- Config form -->
-			<Card v-if="!running" class="w-full max-w-lg">
+			<Card v-if="!running" class="w-full">
 				<CardHeader>
-					<CardTitle class="text-2xl">Seguidor de Seguidores</CardTitle>
+					<div class="flex items-center justify-between gap-2">
+						<CardTitle class="text-xl sm:text-2xl">Configuração</CardTitle>
+						<span v-if="followedToday > 0" class="text-xs text-muted-foreground border rounded-md px-2 py-1 shrink-0">
+							{{ followedToday }} seguidos hoje
+						</span>
+					</div>
 					<CardDescription>Configure suas credenciais e o modo de seguimento.</CardDescription>
 				</CardHeader>
 
@@ -163,11 +160,11 @@
 			</Card>
 
 			<!-- Progress view -->
-			<Card v-else class="w-full max-w-lg">
+			<Card v-else class="w-full">
 				<CardHeader>
-					<div class="flex items-center justify-between">
-						<CardTitle class="text-2xl">Seguindo @{{ targetUser.replace(/^@/, '') }}</CardTitle>
-						<Badge :variant="statusBadgeVariant">{{ statusLabel }}</Badge>
+					<div class="flex items-center justify-between gap-2">
+						<CardTitle class="text-xl sm:text-2xl truncate">Seguindo @{{ targetUser.replace(/^@/, '') }}</CardTitle>
+						<Badge :variant="statusBadgeVariant" class="shrink-0">{{ statusLabel }}</Badge>
 					</div>
 					<CardDescription>Acompanhe o progresso em tempo real.</CardDescription>
 				</CardHeader>
@@ -188,14 +185,18 @@
 					</div>
 
 					<!-- Stats -->
-					<div class="grid grid-cols-2 gap-3">
-						<div class="rounded-lg border p-3 flex flex-col gap-0.5">
+					<div class="grid grid-cols-3 gap-2 sm:gap-3">
+						<div class="rounded-lg border p-2 sm:p-3 flex flex-col gap-0.5">
 							<span class="text-xs text-muted-foreground">Seguidos</span>
-							<span class="text-2xl font-semibold">{{ progress.followed }}</span>
+							<span class="text-xl sm:text-2xl font-semibold">{{ progress.followed }}</span>
 						</div>
-						<div class="rounded-lg border p-3 flex flex-col gap-0.5">
+						<div class="rounded-lg border p-2 sm:p-3 flex flex-col gap-0.5">
 							<span class="text-xs text-muted-foreground">Pulados</span>
-							<span class="text-2xl font-semibold">{{ progress.skipped }}</span>
+							<span class="text-xl sm:text-2xl font-semibold">{{ progress.skipped }}</span>
+						</div>
+						<div class="rounded-lg border p-2 sm:p-3 flex flex-col gap-0.5">
+							<span class="text-xs text-muted-foreground">Hoje</span>
+							<span class="text-xl sm:text-2xl font-semibold">{{ followedToday }}</span>
 						</div>
 					</div>
 
@@ -236,16 +237,13 @@
 					</button>
 				</CardFooter>
 			</Card>
-		</TooltipProvider>
+		</div>
+	</TooltipProvider>
 	</div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, nextTick } from 'vue'
-import { useDark, useToggle } from '@vueuse/core'
-
-const isDark = useDark()
-const toggleDark = useToggle(isDark)
+import { ref, computed, nextTick, onMounted } from 'vue'
 import {
 	Card, CardHeader, CardTitle, CardDescription,
 	CardContent, CardFooter,
@@ -256,7 +254,31 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { Badge } from '@/components/ui/badge'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
-import { Info, Loader2, Clock, Sun, Moon, Eye, EyeOff } from 'lucide-vue-next'
+import { Info, Loader2, Clock, Eye, EyeOff } from 'lucide-vue-next'
+
+// ── Follow timestamps (localStorage) ────────────────────────────────────────
+const LS_KEY = 'ig_follow_timestamps'
+
+function loadTodayTimestamps(): number[] {
+	try {
+		const raw = localStorage.getItem(LS_KEY)
+		if (!raw) return []
+		const all = JSON.parse(raw) as number[]
+		const cutoff = Date.now() - 86_400_000
+		return all.filter(t => t > cutoff)
+	} catch { return [] }
+}
+
+function saveTimestamps(ts: number[]): void {
+	try { localStorage.setItem(LS_KEY, JSON.stringify(ts)) } catch {}
+}
+
+const followTimestamps = ref<number[]>([])
+const followedToday = computed(() => followTimestamps.value.length)
+
+onMounted(() => {
+	followTimestamps.value = loadTodayTimestamps()
+})
 
 // ── Form state ──────────────────────────────────────────────────────────────
 const sessionId = ref('')
@@ -316,6 +338,7 @@ async function start() {
 				followAlreadyFollowers: followAlreadyFollowers.value,
 				filterByFollowers: filterByFollowers.value,
 				minFollowers: Number(minFollowers.value) || 0,
+				previousTimestamps: followTimestamps.value,
 			},
 		})
 		running.value = true
@@ -364,7 +387,15 @@ function openSSE() {
 			pauseUntil?: number
 		}
 
-		if (event.followed !== undefined) progress.value.followed = event.followed
+		if (event.followed !== undefined) {
+			const delta = event.followed - progress.value.followed
+			if (delta > 0) {
+				const now = Date.now()
+				for (let i = 0; i < delta; i++) followTimestamps.value.push(now)
+				saveTimestamps(followTimestamps.value)
+			}
+			progress.value.followed = event.followed
+		}
 		if (event.skipped !== undefined) progress.value.skipped = event.skipped
 		if (event.total !== undefined) progress.value.total = event.total
 

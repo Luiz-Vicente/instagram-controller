@@ -1,10 +1,10 @@
 import { InstagramClient } from './instagram-client'
 import { RateLimiter, type FollowMode } from './rate-limiter'
-import { sleep, randomDelay, formatDuration } from './helpers'
+import { interruptibleSleep, randomDelay, formatDuration } from './helpers'
 import { type Job, emitEvent, clearJob } from './job-manager'
 
-const MIN_DELAY_SEC = 30
-const MAX_DELAY_SEC = 75
+const MIN_DELAY_SEC = 60
+const MAX_DELAY_SEC = 120
 const BATCH_SIZE = 10
 const BATCH_PAUSE_MIN_SEC = 120
 const BATCH_PAUSE_MAX_SEC = 300
@@ -17,6 +17,7 @@ export interface RunnerConfig {
   followAlreadyFollowers: boolean
   filterByFollowers: boolean
   minFollowers: number
+  previousTimestamps: number[]
 }
 
 export async function runFollowJob(config: RunnerConfig, job: Job): Promise<void> {
@@ -41,7 +42,8 @@ export async function runFollowJob(config: RunnerConfig, job: Job): Promise<void
 
     emitEvent(job, { type: 'progress', followed: job.followed, skipped: job.skipped, total: job.total })
 
-    const limiter = new RateLimiter(config.followMode)
+    const limiter = new RateLimiter(config.followMode, config.previousTimestamps)
+    limiter.shouldStop = () => job.shouldStop
     limiter.onPause = (reason, durationMs) => {
       job.status = 'paused'
       const pauseUntil = Date.now() + durationMs
@@ -65,7 +67,7 @@ export async function runFollowJob(config: RunnerConfig, job: Job): Promise<void
         page = await ig.fetchFollowersPage(targetProfile.pk, nextMaxId)
       } catch (err) {
         log(`Erro ao buscar seguidores: ${(err as Error).message}. Tentando novamente em 60s...`)
-        await sleep(60_000)
+        await interruptibleSleep(60_000, () => job.shouldStop)
         continue
       }
       log(`Página carregada: ${page.users.length} usuário(s) encontrado(s)`)
@@ -95,6 +97,9 @@ export async function runFollowJob(config: RunnerConfig, job: Job): Promise<void
           } catch {
             // couldn't fetch — let the account through
           }
+          const delay = randomDelay(5, 10)
+          log(`Aguardando ${formatDuration(delay)} após consulta de perfil...`)
+          await interruptibleSleep(delay, () => job.shouldStop)
           if (followerCount !== undefined && followerCount < config.minFollowers) {
             job.skipped++
             followedIds.add(user.pk)
@@ -110,6 +115,8 @@ export async function runFollowJob(config: RunnerConfig, job: Job): Promise<void
         } catch {
           fs = { following: false, followed_by: false, outgoing_request: false }
         }
+        const fsDelay = randomDelay(5, 15)
+        await interruptibleSleep(fsDelay, () => job.shouldStop)
 
         if (fs.following || fs.outgoing_request) {
           followedIds.add(user.pk)
@@ -147,11 +154,11 @@ export async function runFollowJob(config: RunnerConfig, job: Job): Promise<void
             if (isBatchEnd) {
               const pause = randomDelay(BATCH_PAUSE_MIN_SEC, BATCH_PAUSE_MAX_SEC)
               log(`Pausa de lote: ${formatDuration(pause)}`)
-              await sleep(pause)
+              await interruptibleSleep(pause, () => job.shouldStop)
             } else {
               const delay = randomDelay(MIN_DELAY_SEC, MAX_DELAY_SEC)
               log(`Próximo seguimento em ${formatDuration(delay)}...`)
-              await sleep(delay)
+              await interruptibleSleep(delay, () => job.shouldStop)
             }
           } else {
             job.skipped++
@@ -162,7 +169,7 @@ export async function runFollowJob(config: RunnerConfig, job: Job): Promise<void
           const status = (err as { response?: { status?: number } }).response?.status
           if (status === 429 || status === 400) {
             log('Sinal de rate-limit inesperado. Pausando 15 minutos...')
-            await sleep(15 * 60_000)
+            await interruptibleSleep(15 * 60_000, () => job.shouldStop)
             continue
           }
           log(`[!] Erro ao seguir @${user.username}: ${(err as Error).message}`)
