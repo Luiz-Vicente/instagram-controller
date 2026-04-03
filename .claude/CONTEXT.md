@@ -24,6 +24,7 @@ Ferramenta web para seguir automaticamente os seguidores de um perfil público d
 | Ícones | lucide-vue-next |
 | HTTP Client | axios |
 | Utilities | `@vueuse/core`, `clsx`, `tailwind-merge` |
+| i18n | `@nuxtjs/i18n ^9.5.5` com `vue-i18n` |
 | Linguagem | TypeScript |
 
 ---
@@ -41,9 +42,15 @@ instagram-controller/
 │   │   └── ui/                        # Componentes shadcn instalados
 │   │       ├── badge/, card/, checkbox/
 │   │       ├── input/, label/, radio-group/, tooltip/
-│   └── pages/
-│       ├── index.vue                  # Página principal — formulário + tela de progresso
-│       └── about.vue                  # Página explicativa — mecanismos, modos, riscos, boas práticas
+│   ├── pages/
+│   │   ├── index.vue                  # Página principal — formulário + tela de progresso
+│   │   └── about.vue                  # Página explicativa — mecanismos, modos, riscos, boas práticas
+│   └── plugins/
+│       └── i18n-browser-lang.client.ts  # Detecção de idioma via navigator.language
+├── i18n/
+│   └── locales/
+│       ├── en.json                    # Traduções em inglês
+│       └── pt.json                    # Traduções em português
 ├── server/
 │   ├── api/follow/
 │   │   ├── start.post.ts              # POST — inicia o job em background
@@ -231,9 +238,18 @@ Eventos SSE: `log`, `progress`, `pause`, `done`, `error`, `stopped`
 
 ---
 
+## i18n
+
+- **Módulo:** `@nuxtjs/i18n v9`, strategy `no_prefix`, `detectBrowserLanguage: false`
+- **Idiomas:** `en` (padrão) e `pt`
+- **Arquivos de locale:** `i18n/locales/en.json` e `i18n/locales/pt.json` — localização padrão do módulo v9 (`restructureDir: 'i18n'` + `langDir: 'locales/'`)
+- **Detecção de idioma:** plugin client-side `app/plugins/i18n-browser-lang.client.ts` — usa `navigator.language` (mais confiável que timezone), chama `i18n.setLocale('pt')` para qualquer locale que comece com `'pt'`
+- **Uso em templates:** `$t('chave')` | **Uso em scripts:** `const { t, locale } = useI18n()`
+- **Computed com traduções:** usar `computed(() => t('chave'))` para reativos à troca de idioma
+
 ## Convenções do projeto
 
-- Idioma da interface: **português brasileiro**
+- Idioma da interface: **dinâmico** (pt/en via navigator.language)
 - Componentes shadcn importados explicitamente (sem auto-import)
 - CSS theme usa **oklch** color space (não hex/hsl/rgb)
 - `cn()` em `app/lib/utils.ts` para merge de classes Tailwind
@@ -265,6 +281,18 @@ O componente `CardHeader` renderiza um `grid auto-rows-min grid-rows-[auto_auto]
 ### Toggle dark mode
 
 O botão de toggle dark/light mode vive em **`AppNavbar.vue`** exclusivamente. Não adicionar nas páginas — o componente é global via `app.vue`.
+
+### Escaping de `@` em arquivos de locale JSON (vue-i18n)
+
+O vue-i18n interpreta `@` como início de "linked message" (`@:chave`). Qualquer `@` literal em mensagens JSON causa erro de build (error code 10).
+
+**Fix:** usar a sintaxe literal `{'@'}`:
+```json
+"placeholder": "{'@'}username",
+"title": "Following {'@'}{user}"
+```
+
+Isso vale para qualquer `@` em valores de tradução — tanto `@username` solto quanto `@{param}` com interpolação.
 
 ### Endpoint `web_profile_info`
 
