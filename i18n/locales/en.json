@@ -1,7 +1,8 @@
 {
   "nav": {
     "title": "Follower Follower",
-    "howItWorks": "How it works"
+    "howItWorks": "How it works",
+    "betaWarning": "This tool is in beta. Use it sparingly and at your own risk — misuse may result in temporary restrictions on your Instagram account."
   },
   "form": {
     "title": "Configuration",

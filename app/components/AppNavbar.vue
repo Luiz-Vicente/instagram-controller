@@ -1,9 +1,16 @@
 <template>
 	<nav class="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
 		<div class="mx-auto max-w-5xl flex h-12 items-center justify-between px-4">
-			<NuxtLink to="/" class="flex items-center gap-2 font-semibold text-sm">
-				{{ $t('nav.title') }}
-				<Badge variant="secondary" class="text-xs">Beta</Badge>
+			<NuxtLink to="/" class="flex items-center gap-2 font-bold text-sm tracking-tight">
+				<span class="bg-clip-text text-transparent" style="background-image: var(--brand-gradient)">{{ $t('nav.title') }}</span>
+				<Tooltip>
+					<TooltipTrigger as-child>
+						<Badge variant="secondary" class="text-xs cursor-default">Beta</Badge>
+					</TooltipTrigger>
+					<TooltipContent class="max-w-56 text-center">
+						{{ $t('nav.betaWarning') }}
+					</TooltipContent>
+				</Tooltip>
 			</NuxtLink>
 
 			<div class="flex items-center gap-2">
@@ -31,6 +38,7 @@
 import { useDark, useToggle } from '@vueuse/core'
 import { Info, Sun, Moon } from 'lucide-vue-next'
 import { Badge } from '@/components/ui/badge'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 
 const isDark = useDark()
 const toggleDark = useToggle(isDark)

@@ -1,7 +1,8 @@
 {
   "nav": {
     "title": "Seguidor de Seguidores",
-    "howItWorks": "Como funciona"
+    "howItWorks": "Como funciona",
+    "betaWarning": "Esta ferramenta está em beta. Use com parcimônia e por sua conta e risco — o uso excessivo pode resultar em restrições temporárias na sua conta do Instagram."
   },
   "form": {
     "title": "Configuração",
