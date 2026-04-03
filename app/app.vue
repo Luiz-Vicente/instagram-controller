@@ -14,11 +14,14 @@ useHead({
 </script>
 
 <template>
-  <div>
+  <div class="min-h-screen flex flex-col">
     <TooltipProvider>
       <AppNavbar />
       <NuxtRouteAnnouncer />
-      <NuxtPage />
+      <main class="flex-1">
+        <NuxtPage />
+      </main>
+      <AppFooter />
     </TooltipProvider>
   </div>
 </template>

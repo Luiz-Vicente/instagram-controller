@@ -3,7 +3,7 @@
 		<div class="max-w-2xl mx-auto flex flex-col gap-8 py-4 sm:py-6">
 			<!-- Header -->
 			<div class="flex flex-col gap-2">
-				<NuxtLink to="/" class="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors w-fit">
+				<NuxtLink to="/follow" class="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors w-fit">
 					<ArrowLeft class="w-4 h-4" />
 					{{ $t('about.back') }}
 				</NuxtLink>

@@ -1,6 +1,21 @@
 {
+  "home": {
+    "title": "Ferramentas",
+    "subtitle": "Escolha uma ferramenta para começar.",
+    "soon": "Em breve",
+    "new": "Novo",
+    "follower": {
+      "title": "Seguidor de seguidores",
+      "description": "Segue automaticamente os seguidores de um perfil alvo, com filtros configuráveis, limites de taxa e delays humanizados."
+    },
+    "unfollower": {
+      "title": "Removedor de seguimentos",
+      "description": "Remove automaticamente o seguimento de contas que não te seguem de volta, com filtros para proteger perfis específicos."
+    }
+  },
   "nav": {
-    "title": "Seguidor de Seguidores",
+    "title": "Instagram Controller",
+    "tools": "Ferramentas",
     "howItWorks": "Como funciona",
     "betaWarning": "Esta ferramenta está em beta. Use com parcimônia e por sua conta e risco — o uso excessivo pode resultar em restrições temporárias na sua conta do Instagram."
   },

@@ -1,6 +1,21 @@
 {
+  "home": {
+    "title": "Tools",
+    "subtitle": "Choose a tool to get started.",
+    "soon": "Soon",
+    "new": "New",
+    "follower": {
+      "title": "Follower of followers",
+      "description": "Automatically follow the followers of a target profile, with configurable filters, rate limits and humanized delays."
+    },
+    "unfollower": {
+      "title": "Follower remover",
+      "description": "Automatically unfollow accounts that don't follow you back, with filters to protect specific profiles."
+    }
+  },
   "nav": {
-    "title": "Follower Follower",
+    "title": "Instagram Controller",
+    "tools": "Tools",
     "howItWorks": "How it works",
     "betaWarning": "This tool is in beta. Use it sparingly and at your own risk — misuse may result in temporary restrictions on your Instagram account."
   },
