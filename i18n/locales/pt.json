@@ -45,6 +45,7 @@
     "skipped": "Pulados",
     "today": "Hoje",
     "of": "de",
+    "keepTabOpen": "Não feche esta aba enquanto o processo estiver em execução.",
     "awaitingLogs": "Aguardando logs...",
     "stop": "Parar seguimento",
     "stopping": "Parando...",

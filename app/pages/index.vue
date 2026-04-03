@@ -160,6 +160,12 @@
 				</CardHeader>
 
 				<CardContent class="flex flex-col gap-5">
+					<!-- Keep tab open warning -->
+					<div v-if="jobStatus === 'running' || jobStatus === 'paused'" class="flex items-center gap-2 rounded-lg bg-yellow-500/10 border border-yellow-500/30 px-3 py-2 text-xs text-yellow-700 dark:text-yellow-400">
+						<span>⚠</span>
+						<span>{{ $t('progress.keepTabOpen') }}</span>
+					</div>
+
 					<!-- Progress bar -->
 					<div class="flex flex-col gap-2">
 						<div class="flex justify-between text-sm text-muted-foreground">

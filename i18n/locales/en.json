@@ -45,6 +45,7 @@
     "skipped": "Skipped",
     "today": "Today",
     "of": "of",
+    "keepTabOpen": "Do not close this tab while the process is running.",
     "awaitingLogs": "Awaiting logs...",
     "stop": "Stop following",
     "stopping": "Stopping...",
