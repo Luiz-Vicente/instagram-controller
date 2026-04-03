@@ -1,20 +1,20 @@
 <template>
-	<div class="min-h-screen bg-background flex items-center justify-center p-3 sm:p-6">
-		<TooltipProvider>
-			<div class="w-full max-w-lg">
+	<TooltipProvider>
+		<div class="w-full max-w-lg mx-auto px-4 py-8 flex flex-col gap-8">
+
 			<!-- Config form -->
-			<Card v-if="!running" class="w-full">
-				<CardHeader>
+			<div v-if="!running" class="flex flex-col gap-8">
+				<div class="flex flex-col gap-1">
 					<div class="flex items-center justify-between gap-2">
-						<CardTitle class="text-xl sm:text-2xl">{{ $t('form.title') }}</CardTitle>
+						<h1 class="text-2xl font-semibold tracking-tight">{{ $t('form.title') }}</h1>
 						<span v-if="followedToday > 0" class="text-xs text-muted-foreground border rounded-md px-2 py-1 shrink-0">
 							{{ $t('form.followedToday', { count: followedToday }) }}
 						</span>
 					</div>
-					<CardDescription>{{ $t('form.description') }}</CardDescription>
-				</CardHeader>
+					<p class="text-sm text-muted-foreground">{{ $t('form.description') }}</p>
+				</div>
 
-				<CardContent class="flex flex-col gap-6">
+				<div class="flex flex-col gap-6">
 					<!-- Credenciais -->
 					<div class="flex flex-col gap-4">
 						<div class="flex flex-col gap-1.5">
@@ -135,116 +135,106 @@
 							</div>
 						</div>
 					</div>
-				</CardContent>
+				</div>
 
-				<CardFooter>
-					<button
-						class="w-full inline-flex items-center justify-center rounded-md bg-primary text-primary-foreground text-sm font-medium h-9 px-4 py-2 transition-colors hover:bg-primary/90 disabled:opacity-50 disabled:pointer-events-none"
-						:disabled="!sessionId || !targetUser || starting"
-						@click="start"
-					>
-						<Loader2 v-if="starting" class="w-4 h-4 mr-2 animate-spin" />
-						{{ starting ? $t('form.submitting') : $t('form.submit') }}
-					</button>
-				</CardFooter>
-			</Card>
+				<button
+					class="w-full inline-flex items-center justify-center rounded-md bg-primary text-primary-foreground text-sm font-medium h-9 px-4 py-2 transition-colors hover:bg-primary/90 disabled:opacity-50 disabled:pointer-events-none"
+					:disabled="!sessionId || !targetUser || starting"
+					@click="start"
+				>
+					<Loader2 v-if="starting" class="w-4 h-4 mr-2 animate-spin" />
+					{{ starting ? $t('form.submitting') : $t('form.submit') }}
+				</button>
+			</div>
 
 			<!-- Progress view -->
-			<Card v-else class="w-full">
-				<CardHeader>
+			<div v-else class="flex flex-col gap-6">
+				<div class="flex flex-col gap-1">
 					<div class="flex items-center justify-between gap-2">
-						<CardTitle class="text-xl sm:text-2xl truncate">{{ $t('progress.title', { user: targetUser.replace(/^@/, '') }) }}</CardTitle>
+						<h1 class="text-2xl font-semibold tracking-tight truncate">{{ $t('progress.title', { user: targetUser.replace(/^@/, '') }) }}</h1>
 						<Badge :variant="statusBadgeVariant" class="shrink-0">{{ statusLabel }}</Badge>
 					</div>
-					<CardDescription>{{ $t('progress.description') }}</CardDescription>
-				</CardHeader>
+					<p class="text-sm text-muted-foreground">{{ $t('progress.description') }}</p>
+				</div>
 
-				<CardContent class="flex flex-col gap-5">
-					<!-- Keep tab open warning -->
-					<div v-if="jobStatus === 'running' || jobStatus === 'paused'" class="flex items-center gap-2 rounded-lg bg-yellow-500/10 border border-yellow-500/30 px-3 py-2 text-xs text-yellow-700 dark:text-yellow-400">
-						<span>⚠</span>
-						<span>{{ $t('progress.keepTabOpen') }}</span>
+				<!-- Keep tab open warning -->
+				<div v-if="jobStatus === 'running' || jobStatus === 'paused'" class="flex items-center gap-2 rounded-lg bg-yellow-500/10 border border-yellow-500/30 px-3 py-2 text-xs text-yellow-700 dark:text-yellow-400">
+					<span>⚠</span>
+					<span>{{ $t('progress.keepTabOpen') }}</span>
+				</div>
+
+				<!-- Progress bar -->
+				<div class="flex flex-col gap-2">
+					<div class="flex justify-between text-sm text-muted-foreground">
+						<span>{{ progress.followed }} {{ $t('progress.followed').toLowerCase() }}</span>
+						<span v-if="progress.total > 0">{{ progressPct }}% {{ $t('progress.of') }} {{ progress.total.toLocaleString(locale) }}</span>
 					</div>
-
-					<!-- Progress bar -->
-					<div class="flex flex-col gap-2">
-						<div class="flex justify-between text-sm text-muted-foreground">
-							<span>{{ progress.followed }} {{ $t('progress.followed').toLowerCase() }}</span>
-							<span v-if="progress.total > 0">{{ progressPct }}% {{ $t('progress.of') }} {{ progress.total.toLocaleString(locale) }}</span>
-						</div>
-						<div class="w-full h-2 bg-muted rounded-full overflow-hidden">
-							<div
-								class="h-full bg-primary transition-all duration-500 rounded-full"
-								:style="{ width: `${progressPct}%` }"
-							/>
-						</div>
+					<div class="w-full h-2 bg-muted rounded-full overflow-hidden">
+						<div
+							class="h-full bg-primary transition-all duration-500 rounded-full"
+							:style="{ width: `${progressPct}%` }"
+						/>
 					</div>
+				</div>
 
-					<!-- Stats -->
-					<div class="grid grid-cols-3 gap-2 sm:gap-3">
-						<div class="rounded-lg border p-2 sm:p-3 flex flex-col gap-0.5">
-							<span class="text-xs text-muted-foreground">{{ $t('progress.followed') }}</span>
-							<span class="text-xl sm:text-2xl font-semibold">{{ progress.followed }}</span>
-						</div>
-						<div class="rounded-lg border p-2 sm:p-3 flex flex-col gap-0.5">
-							<span class="text-xs text-muted-foreground">{{ $t('progress.skipped') }}</span>
-							<span class="text-xl sm:text-2xl font-semibold">{{ progress.skipped }}</span>
-						</div>
-						<div class="rounded-lg border p-2 sm:p-3 flex flex-col gap-0.5">
-							<span class="text-xs text-muted-foreground">{{ $t('progress.today') }}</span>
-							<span class="text-xl sm:text-2xl font-semibold">{{ followedToday }}</span>
-						</div>
+				<!-- Stats -->
+				<div class="grid grid-cols-3 gap-2 sm:gap-3">
+					<div class="rounded-lg border p-2 sm:p-3 flex flex-col gap-0.5">
+						<span class="text-xs text-muted-foreground">{{ $t('progress.followed') }}</span>
+						<span class="text-xl sm:text-2xl font-semibold">{{ progress.followed }}</span>
 					</div>
-
-					<!-- Pause notice -->
-					<div v-if="pauseInfo" class="flex items-start gap-2 rounded-lg bg-muted px-3 py-2 text-sm text-muted-foreground">
-						<Clock class="w-4 h-4 mt-0.5 shrink-0" />
-						<span>{{ pauseInfo }}</span>
+					<div class="rounded-lg border p-2 sm:p-3 flex flex-col gap-0.5">
+						<span class="text-xs text-muted-foreground">{{ $t('progress.skipped') }}</span>
+						<span class="text-xl sm:text-2xl font-semibold">{{ progress.skipped }}</span>
 					</div>
-
-					<!-- Log -->
-					<div class="flex flex-col gap-1">
-						<span class="text-xs font-medium text-muted-foreground uppercase tracking-wide">Log</span>
-						<div ref="logEl" class="h-48 overflow-y-auto rounded-lg border bg-muted/30 p-3 flex flex-col gap-1 font-mono text-xs">
-							<span v-for="(line, i) in logs" :key="i" :class="line.startsWith('[+]') ? 'text-green-600 dark:text-green-400' : line.startsWith('[!]') ? 'text-destructive' : 'text-muted-foreground'">
-								{{ line }}
-							</span>
-							<span v-if="logs.length === 0" class="text-muted-foreground italic">{{ $t('progress.awaitingLogs') }}</span>
-						</div>
+					<div class="rounded-lg border p-2 sm:p-3 flex flex-col gap-0.5">
+						<span class="text-xs text-muted-foreground">{{ $t('progress.today') }}</span>
+						<span class="text-xl sm:text-2xl font-semibold">{{ followedToday }}</span>
 					</div>
-				</CardContent>
+				</div>
 
-				<CardFooter>
-					<button
-						v-if="jobStatus === 'running' || jobStatus === 'paused'"
-						class="w-full inline-flex items-center justify-center rounded-md border border-destructive text-destructive text-sm font-medium h-9 px-4 py-2 transition-colors hover:bg-destructive/10 disabled:opacity-50 disabled:pointer-events-none"
-						:disabled="stopping"
-						@click="stop"
-					>
-						<Loader2 v-if="stopping" class="w-4 h-4 mr-2 animate-spin" />
-						{{ stopping ? $t('progress.stopping') : $t('progress.stop') }}
-					</button>
-					<button
-						v-else
-						class="w-full inline-flex items-center justify-center rounded-md bg-primary text-primary-foreground text-sm font-medium h-9 px-4 py-2 transition-colors hover:bg-primary/90"
-						@click="reset"
-					>
-						{{ $t('progress.newFollow') }}
-					</button>
-				</CardFooter>
-			</Card>
+				<!-- Pause notice -->
+				<div v-if="pauseInfo" class="flex items-start gap-2 rounded-lg bg-muted px-3 py-2 text-sm text-muted-foreground">
+					<Clock class="w-4 h-4 mt-0.5 shrink-0" />
+					<span>{{ pauseInfo }}</span>
+				</div>
+
+				<!-- Log -->
+				<div class="flex flex-col gap-1">
+					<span class="text-xs font-medium text-muted-foreground uppercase tracking-wide">Log</span>
+					<div ref="logEl" class="h-48 overflow-y-auto rounded-lg border bg-muted/30 p-3 flex flex-col gap-1 font-mono text-xs">
+						<span v-for="(line, i) in logs" :key="i" :class="line.startsWith('[+]') ? 'text-green-600 dark:text-green-400' : line.startsWith('[!]') ? 'text-destructive' : 'text-muted-foreground'">
+							{{ line }}
+						</span>
+						<span v-if="logs.length === 0" class="text-muted-foreground italic">{{ $t('progress.awaitingLogs') }}</span>
+					</div>
+				</div>
+
+				<button
+					v-if="jobStatus === 'running' || jobStatus === 'paused'"
+					class="w-full inline-flex items-center justify-center rounded-md border border-destructive text-destructive text-sm font-medium h-9 px-4 py-2 transition-colors hover:bg-destructive/10 disabled:opacity-50 disabled:pointer-events-none"
+					:disabled="stopping"
+					@click="stop"
+				>
+					<Loader2 v-if="stopping" class="w-4 h-4 mr-2 animate-spin" />
+					{{ stopping ? $t('progress.stopping') : $t('progress.stop') }}
+				</button>
+				<button
+					v-else
+					class="w-full inline-flex items-center justify-center rounded-md bg-primary text-primary-foreground text-sm font-medium h-9 px-4 py-2 transition-colors hover:bg-primary/90"
+					@click="reset"
+				>
+					{{ $t('progress.newFollow') }}
+				</button>
+			</div>
+
 		</div>
 	</TooltipProvider>
-	</div>
 </template>
 
 <script setup lang="ts">
 import { ref, computed, nextTick, onMounted } from 'vue'
 const { t, locale } = useI18n()
-import {
-	Card, CardHeader, CardTitle, CardDescription,
-	CardContent, CardFooter,
-} from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
