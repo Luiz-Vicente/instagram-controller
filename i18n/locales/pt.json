@@ -17,6 +17,31 @@
       "description": "Arquive tudo, exclua em massa, filtre por tipo de publicação (fotos, reels, carrosséis) e gerencie seu perfil com eficiência."
     }
   },
+  "feedback": {
+    "trigger": "Feedback",
+    "title": "Envie seu feedback",
+    "subtitle": "Sugestões, bugs ou elogios — tudo é bem-vindo.",
+    "nameLabel": "Nome",
+    "namePlaceholder": "Seu nome",
+    "emailLabel": "Email",
+    "emailPlaceholder": "seu{'@'}email.com",
+    "phoneLabel": "Telefone",
+    "phonePlaceholder": "(11) 99999-9999",
+    "typeLabel": "Tipo",
+    "types": {
+      "suggestion": "Sugestão de feature",
+      "bug": "Reporte de bug",
+      "other": "Outro"
+    },
+    "messageLabel": "Mensagem",
+    "messagePlaceholder": "Descreva sua sugestão ou reporte o problema...",
+    "submit": "Enviar",
+    "submitting": "Enviando...",
+    "successTitle": "Recebido! Obrigado.",
+    "successBody": "Vamos analisar seu feedback o quanto antes.",
+    "close": "Fechar",
+    "error": "Falha ao enviar. Tente novamente."
+  },
   "nav": {
     "title": "Instagram Controller",
     "tools": "Ferramentas",

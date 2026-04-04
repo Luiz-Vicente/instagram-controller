@@ -17,6 +17,31 @@
       "description": "Archive everything, bulk delete, filter by post type (photos, reels, carousels) and manage your profile efficiently."
     }
   },
+  "feedback": {
+    "trigger": "Feedback",
+    "title": "Send feedback",
+    "subtitle": "Suggestions, bugs or compliments — all are welcome.",
+    "nameLabel": "Name",
+    "namePlaceholder": "Your name",
+    "emailLabel": "Email",
+    "emailPlaceholder": "you{'@'}email.com",
+    "phoneLabel": "Phone",
+    "phonePlaceholder": "+1 (555) 000-0000",
+    "typeLabel": "Type",
+    "types": {
+      "suggestion": "Feature suggestion",
+      "bug": "Bug report",
+      "other": "Other"
+    },
+    "messageLabel": "Message",
+    "messagePlaceholder": "Describe your suggestion or report the problem...",
+    "submit": "Send",
+    "submitting": "Sending...",
+    "successTitle": "Received! Thank you.",
+    "successBody": "We'll review your feedback as soon as possible.",
+    "close": "Close",
+    "error": "Failed to send. Please try again."
+  },
   "nav": {
     "title": "Instagram Controller",
     "tools": "Tools",

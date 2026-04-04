@@ -23,6 +23,7 @@ useHead({
         <NuxtPage />
       </main>
       <AppFooter />
+      <AppFeedbackButton />
     </TooltipProvider>
   </div>
 </template>
