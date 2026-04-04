@@ -11,6 +11,10 @@
     "unfollower": {
       "title": "Follower remover",
       "description": "Automatically unfollow accounts that don't follow you back, with filters to protect specific profiles."
+    },
+    "postManager": {
+      "title": "Post manager",
+      "description": "Archive everything, bulk delete, filter by post type (photos, reels, carousels) and manage your profile efficiently."
     }
   },
   "nav": {

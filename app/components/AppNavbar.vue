@@ -93,6 +93,20 @@
 						<p class="text-xs text-muted-foreground leading-relaxed">{{ $t('home.unfollower.description') }}</p>
 					</div>
 				</div>
+
+				<!-- Gerenciador de posts (em breve) -->
+				<div class="flex items-start gap-3 rounded-lg border p-3 opacity-50 cursor-not-allowed select-none">
+					<div class="p-1.5 rounded-md bg-muted text-muted-foreground shrink-0 mt-0.5">
+						<LayoutGrid class="w-4 h-4" />
+					</div>
+					<div class="flex flex-col gap-0.5 min-w-0">
+						<div class="flex items-center gap-1.5 flex-wrap">
+							<span class="text-sm font-medium">{{ $t('home.postManager.title') }}</span>
+							<span class="text-xs bg-muted text-muted-foreground rounded px-1.5 py-0.5 leading-none">{{ $t('home.soon') }}</span>
+						</div>
+						<p class="text-xs text-muted-foreground leading-relaxed">{{ $t('home.postManager.description') }}</p>
+					</div>
+				</div>
 			</div>
 		</aside>
 	</Transition>
@@ -102,7 +116,7 @@
 import { ref, computed } from 'vue'
 import { useRoute } from 'vue-router'
 import { useDark, useToggle } from '@vueuse/core'
-import { Menu, X, Sun, Moon, UserPlus, UserMinus } from 'lucide-vue-next'
+import { Menu, X, Sun, Moon, UserPlus, UserMinus, LayoutGrid } from 'lucide-vue-next'
 import { Badge } from '@/components/ui/badge'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 

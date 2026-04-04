@@ -37,10 +37,23 @@
 					<p class="text-xs text-muted-foreground leading-relaxed">{{ $t('home.unfollower.description') }}</p>
 				</div>
 			</div>
+			<!-- Gerenciador de posts (em breve) -->
+			<div class="flex items-start gap-4 rounded-lg border p-5 opacity-50 cursor-not-allowed select-none">
+				<div class="mt-0.5 p-2 rounded-md bg-muted text-muted-foreground shrink-0">
+					<LayoutGrid class="w-5 h-5" />
+				</div>
+				<div class="flex flex-col gap-1 min-w-0">
+					<div class="flex items-center gap-2">
+						<span class="font-medium text-sm">{{ $t('home.postManager.title') }}</span>
+						<span class="text-xs bg-muted text-muted-foreground rounded px-1.5 py-0.5 leading-none">{{ $t('home.soon') }}</span>
+					</div>
+					<p class="text-xs text-muted-foreground leading-relaxed">{{ $t('home.postManager.description') }}</p>
+				</div>
+			</div>
 		</div>
 	</div>
 </template>
 
 <script setup lang="ts">
-import { UserPlus, UserMinus, ArrowRight } from 'lucide-vue-next'
+import { UserPlus, UserMinus, ArrowRight, LayoutGrid } from 'lucide-vue-next'
 </script>
