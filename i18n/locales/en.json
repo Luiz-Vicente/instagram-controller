@@ -10,7 +10,7 @@
     },
     "unfollower": {
       "title": "Follower remover",
-      "description": "Automatically unfollow accounts that don't follow you back, with filters to protect specific profiles."
+      "description": "Remove followings in bulk with configurable filters: by reciprocity, follower range, or all at once."
     },
     "postManager": {
       "title": "Post manager",

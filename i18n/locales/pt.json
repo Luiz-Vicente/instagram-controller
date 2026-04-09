@@ -10,7 +10,7 @@
     },
     "unfollower": {
       "title": "Removedor de seguimentos",
-      "description": "Remove automaticamente o seguimento de contas que não te seguem de volta, com filtros para proteger perfis específicos."
+      "description": "Remova seguimentos em massa com filtros configuráveis: por reciprocidade, faixa de seguidores ou todos de uma vez."
     },
     "postManager": {
       "title": "Gerenciador de posts",
