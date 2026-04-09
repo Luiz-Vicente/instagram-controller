@@ -103,6 +103,55 @@
     "error": "Erro",
     "stopped": "Interrompido"
   },
+  "posts": {
+    "form": {
+      "title": "Configuração",
+      "description": "Configure a ação, os tipos de post e o período desejado.",
+      "errorStarting": "Erro ao iniciar.",
+      "action": {
+        "label": "Ação",
+        "archive": "Arquivar",
+        "archiveDesc": "Ocultado do perfil, recuperável",
+        "delete": "Excluir",
+        "deleteDesc": "Permanente, sem recuperação"
+      },
+      "deleteWarning": "A exclusão é permanente e irreversível. Os posts não poderão ser recuperados após essa operação.",
+      "types": {
+        "label": "Tipos de post",
+        "tooltip": "Selecione os tipos de post que serão processados. Deixe todos desmarcados para processar todos os tipos.",
+        "allHint": "Nenhum tipo selecionado — todos os tipos serão processados.",
+        "photo": "Foto",
+        "video": "Vídeo",
+        "reel": "Reel",
+        "carousel": "Carrossel"
+      },
+      "dateFilter": {
+        "label": "Filtrar por período",
+        "from": "De",
+        "to": "Até",
+        "hint": "Nenhuma data definida — todos os posts serão considerados."
+      },
+      "submitArchive": "Iniciar arquivamento",
+      "submitDelete": "Iniciar exclusão",
+      "submitting": "Iniciando..."
+    },
+    "progress": {
+      "titleArchive": "Arquivando posts",
+      "titleDelete": "Excluindo posts",
+      "description": "Acompanhe o progresso em tempo real.",
+      "scanning": "Escaneando posts da sua conta...",
+      "archived": "Arquivados",
+      "deleted": "Excluídos",
+      "errors": "Erros",
+      "total": "Total",
+      "of": "de",
+      "keepTabOpen": "Não feche esta aba enquanto o processo estiver em execução.",
+      "awaitingLogs": "Aguardando logs...",
+      "stop": "Parar operação",
+      "stopping": "Parando...",
+      "newOperation": "Nova operação"
+    }
+  },
   "unfollow": {
     "form": {
       "title": "Configuração",

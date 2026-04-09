@@ -21,6 +21,21 @@ export interface FriendshipStatus {
   outgoing_request: boolean
 }
 
+export type PostMediaType = 'photo' | 'video' | 'reel' | 'carousel'
+
+export interface PostInfo {
+  id: string
+  media_type: number
+  product_type?: string
+  taken_at: number // Unix timestamp in seconds
+  postType: PostMediaType
+}
+
+export interface MediaPage {
+  posts: PostInfo[]
+  next_max_id?: string
+}
+
 const WEB_UA =
   'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36'
 const MOBILE_UA =
@@ -210,6 +225,55 @@ export class InstagramClient {
 
     await this.executeWithRetry(() =>
       this.mobileClient.post(`/api/v1/friendships/destroy/${userId}/`, body, {
+        headers: { Cookie: this.buildCookieHeader(), 'X-CSRFToken': this.csrfToken },
+      })
+    )
+  }
+
+  async fetchUserMediaPage(userId: string, maxId?: string): Promise<MediaPage> {
+    const params: Record<string, string | number> = { count: 20 }
+    if (maxId) params['max_id'] = maxId
+
+    const res = await this.executeWithRetry(() =>
+      this.mobileClient.get(`/api/v1/feed/user/${userId}/`, {
+        params,
+        headers: { Cookie: this.buildCookieHeader() },
+      })
+    )
+
+    type RawItem = { id: string; media_type: number; product_type?: string; taken_at: number }
+    const data = res.data as { items?: RawItem[]; next_max_id?: string }
+
+    const posts: PostInfo[] = (data.items ?? []).map((item) => {
+      let postType: PostMediaType
+      if (item.media_type === 8) postType = 'carousel'
+      else if (item.media_type === 2 && item.product_type === 'clips') postType = 'reel'
+      else if (item.media_type === 2) postType = 'video'
+      else postType = 'photo'
+
+      return { id: item.id, media_type: item.media_type, product_type: item.product_type, taken_at: item.taken_at, postType }
+    })
+
+    return { posts, next_max_id: data.next_max_id }
+  }
+
+  async archivePost(mediaId: string): Promise<void> {
+    const uuid = this.generateUUID()
+    const body = `media_id=${mediaId}&_uuid=${uuid}`
+
+    await this.executeWithRetry(() =>
+      this.mobileClient.post(`/api/v1/media/${mediaId}/only_me/`, body, {
+        headers: { Cookie: this.buildCookieHeader(), 'X-CSRFToken': this.csrfToken },
+      })
+    )
+  }
+
+  async deletePost(mediaId: string, mediaType: number): Promise<void> {
+    const uuid = this.generateUUID()
+    const body = `media_id=${mediaId}&_uuid=${uuid}&media_type=${mediaType}`
+
+    await this.executeWithRetry(() =>
+      this.mobileClient.post(`/api/v1/media/${mediaId}/delete/`, body, {
         headers: { Cookie: this.buildCookieHeader(), 'X-CSRFToken': this.csrfToken },
       })
     )

@@ -1,4 +1,4 @@
-import { InstagramClient } from './instagram-client'
+import { InstagramClient, type UserInfo } from './instagram-client'
 import { RateLimiter, type FollowMode } from './rate-limiter'
 import { interruptibleSleep, randomDelay, formatDuration } from './helpers'
 import { type Job, emitEvent, clearJob } from './job-manager'

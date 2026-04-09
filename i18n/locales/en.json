@@ -103,6 +103,55 @@
     "error": "Error",
     "stopped": "Stopped"
   },
+  "posts": {
+    "form": {
+      "title": "Configuration",
+      "description": "Configure the action, post types, and desired date range.",
+      "errorStarting": "Error starting.",
+      "action": {
+        "label": "Action",
+        "archive": "Archive",
+        "archiveDesc": "Hidden from profile, recoverable",
+        "delete": "Delete",
+        "deleteDesc": "Permanent, no recovery"
+      },
+      "deleteWarning": "Deletion is permanent and irreversible. Posts cannot be recovered after this operation.",
+      "types": {
+        "label": "Post types",
+        "tooltip": "Select the types of posts to process. Leave all unchecked to process all types.",
+        "allHint": "No type selected — all post types will be processed.",
+        "photo": "Photo",
+        "video": "Video",
+        "reel": "Reel",
+        "carousel": "Carousel"
+      },
+      "dateFilter": {
+        "label": "Filter by date range",
+        "from": "From",
+        "to": "To",
+        "hint": "No date defined — all posts will be considered."
+      },
+      "submitArchive": "Start archiving",
+      "submitDelete": "Start deleting",
+      "submitting": "Starting..."
+    },
+    "progress": {
+      "titleArchive": "Archiving posts",
+      "titleDelete": "Deleting posts",
+      "description": "Track progress in real time.",
+      "scanning": "Scanning your account's posts...",
+      "archived": "Archived",
+      "deleted": "Deleted",
+      "errors": "Errors",
+      "total": "Total",
+      "of": "of",
+      "keepTabOpen": "Do not close this tab while the process is running.",
+      "awaitingLogs": "Awaiting logs...",
+      "stop": "Stop operation",
+      "stopping": "Stopping...",
+      "newOperation": "New operation"
+    }
+  },
   "unfollow": {
     "form": {
       "title": "Configuration",
