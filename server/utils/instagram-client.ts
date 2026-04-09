@@ -7,6 +7,7 @@ export interface UserInfo {
   full_name: string
   is_private: boolean
   follower_count?: number
+  following_count?: number
 }
 
 export interface FollowersPage {
@@ -171,6 +172,47 @@ export class InstagramClient {
       followed_by: data.followed_by ?? false,
       outgoing_request: data.outgoing_request ?? false,
     }
+  }
+
+  async fetchCurrentUser(maxAttempts = 3): Promise<UserInfo> {
+    const res = await this.executeWithRetry(
+      () => this.mobileClient.get('/api/v1/accounts/current_user/', {
+        params: { edit: 'true' },
+        headers: { Cookie: this.buildCookieHeader() },
+      }),
+      maxAttempts
+    )
+
+    const data = res.data as { user?: { pk: string; username: string; full_name: string; is_private: boolean; follower_count?: number; following_count?: number } }
+    if (!data?.user) throw new Error('Não foi possível obter o usuário autenticado. Verifique seu Session ID.')
+    const u = data.user
+    return { pk: String(u.pk), username: u.username, full_name: u.full_name, is_private: u.is_private, follower_count: u.follower_count, following_count: u.following_count }
+  }
+
+  async fetchFollowingPage(userId: string, maxId?: string): Promise<FollowersPage> {
+    const params: Record<string, string | number> = { count: 50 }
+    if (maxId) params['max_id'] = maxId
+
+    const res = await this.executeWithRetry(() =>
+      this.mobileClient.get(`/api/v1/friendships/${userId}/following/`, {
+        params,
+        headers: { Cookie: this.buildCookieHeader() },
+      })
+    )
+
+    const data = res.data as { users: UserInfo[]; next_max_id?: string }
+    return { users: data.users ?? [], next_max_id: data.next_max_id }
+  }
+
+  async unfollowUser(userId: string): Promise<void> {
+    const uuid = this.generateUUID()
+    const body = `_uuid=${uuid}&_uid=${userId}&user_id=${userId}&radio_type=wifi-none`
+
+    await this.executeWithRetry(() =>
+      this.mobileClient.post(`/api/v1/friendships/destroy/${userId}/`, body, {
+        headers: { Cookie: this.buildCookieHeader(), 'X-CSRFToken': this.csrfToken },
+      })
+    )
   }
 
   async followUser(userId: string): Promise<boolean> {

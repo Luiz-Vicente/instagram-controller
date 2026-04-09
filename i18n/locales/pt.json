@@ -103,6 +103,138 @@
     "error": "Erro",
     "stopped": "Interrompido"
   },
+  "unfollow": {
+    "form": {
+      "title": "Configuração",
+      "description": "Configure suas credenciais e o modo de remoção.",
+      "unfollowedToday": "{count} removidos hoje",
+      "errorStarting": "Erro ao iniciar.",
+      "mode": {
+        "label": "Modo de remoção",
+        "tooltip": "Define a velocidade das remoções. Modos mais rápidos aumentam o risco de bloqueio temporário pela plataforma. Recomendamos o modo Segura para uso contínuo.",
+        "rateInfo": "{perHour} remoções/hora · {perDay} remoções/dia"
+      },
+      "filters": {
+        "label": "Filtros",
+        "notFollowingBack": "Remover apenas quem não me segue de volta",
+        "minFollowers": "Ignorar contas com menos de X seguidores",
+        "minFollowersPlaceholder": "Mínimo de seguidores",
+        "maxFollowers": "Ignorar contas com mais de X seguidores",
+        "maxFollowersPlaceholder": "Máximo de seguidores",
+      },
+      "submit": "Iniciar remoção",
+      "submitting": "Iniciando..."
+    },
+    "progress": {
+      "title": "Removendo seguimentos",
+      "description": "Acompanhe o progresso em tempo real.",
+      "unfollowed": "Removidos",
+      "skipped": "Pulados",
+      "today": "Hoje",
+      "of": "de",
+      "keepTabOpen": "Não feche esta aba enquanto o processo estiver em execução.",
+      "awaitingLogs": "Aguardando logs...",
+      "stop": "Parar remoção",
+      "stopping": "Parando...",
+      "newUnfollow": "Nova remoção"
+    }
+  },
+  "aboutUnfollow": {
+    "title": "Como funciona",
+    "subtitle": "Entenda os mecanismos de segurança, os filtros disponíveis e os riscos de cada modo de remoção.",
+    "back": "Voltar",
+    "overview": {
+      "title": "Visão geral",
+      "p1": "A ferramenta acessa a lista de seguimentos da sua própria conta e, para cada conta encontrada, aplica os filtros configurados. Se a conta passar em todos os filtros, o unfollow é executado com um delay aleatório entre cada ação para simular comportamento humano.",
+      "p2": "Todo o processamento acontece no servidor local — nenhum dado é enviado para serviços externos além do próprio Instagram. A sessão é autenticada com seu Session ID, que nunca sai do ambiente local."
+    },
+    "filters": {
+      "title": "Como os filtros funcionam",
+      "notFollowingBack": {
+        "title": "Remover apenas quem não me segue de volta",
+        "body": "Para cada conta na lista, o app consulta o status de amizade via API antes de executar o unfollow. Se a conta te seguir de volta (followed_by = true), ela é pulada. Atenção: esse filtro gera uma chamada extra à API por conta, o que aumenta o tempo total de execução e o volume de requisições."
+      },
+      "minFollowers": {
+        "title": "Ignorar contas com menos de X seguidores",
+        "body": "Antes de executar o unfollow, o app busca o perfil da conta para verificar o número de seguidores. Contas com menos seguidores do que o valor configurado são puladas. Útil para preservar seguimentos de contas menores e mais próximas."
+      },
+      "maxFollowers": {
+        "title": "Ignorar contas com mais de X seguidores",
+        "body": "Similar ao filtro de mínimo, mas no sentido contrário. Contas grandes (influenciadores, marcas) são preservadas. Útil para manter seguimentos de interesse sem removê-los em massa."
+      },
+      "combining": {
+        "title": "Combinando filtros",
+        "body": "Os filtros são cumulativos — uma conta só é removida se passar em todos os filtros ativos simultaneamente. Quanto mais filtros ativos, mais chamadas à API são feitas por conta e mais lento é o processamento. Use com parcimônia."
+      }
+    },
+    "mechanisms": {
+      "title": "Mecanismos de defesa",
+      "delays": {
+        "title": "Delays entre remoções",
+        "body": "Após cada unfollow bem-sucedido, o app aguarda entre 60 e 120 segundos antes da próxima ação. Quando há verificação de status de amizade ou busca de perfil, são adicionados delays extras de 5 a 15 segundos por consulta. Esses intervalos aleatórios evitam padrões regulares que sistemas de detecção identificam facilmente."
+      },
+      "batch": {
+        "title": "Pausas de lote",
+        "body": "A cada 10 remoções consecutivas, o app faz uma pausa extra de 2 a 5 minutos. Isso reproduz o comportamento de alguém que para para ver o feed, responder mensagens ou simplesmente descansar entre sessões de limpeza."
+      },
+      "rateLimit": {
+        "title": "Janela deslizante de rate limit",
+        "body": "Os limites horários e diários são aplicados com janela deslizante real — não um simples contador que reinicia à meia-noite. O histórico do dia é salvo no navegador e carregado na próxima sessão, impedindo que fechar e reabrir o app zere o contador."
+      },
+      "retry": {
+        "title": "Retry com backoff em erros de API",
+        "body": "Em chamadas críticas, o app tenta novamente em caso de erro HTTP 429 ou 503, aguardando 30s, 60s e 90s entre tentativas. Para verificações de filtro, a estratégia é falhar rápido — se a API não responder, a conta é deixada passar em vez de travar o processo."
+      }
+    },
+    "modes": {
+      "title": "Modos de remoção e risco",
+      "intro": "Os modos controlam quantas remoções o app executa por hora e por dia. O Instagram monitora o comportamento de unfollow em massa de forma similar ao follow — volumes altos ativam os mesmos sistemas de defesa.",
+      "ultraSafe": {
+        "label": "Ultra Segura",
+        "badge": "Mínimo risco",
+        "rate": "20 remoções/hora · 60 remoções/dia",
+        "body": "Ritmo muito abaixo dos limites internos do Instagram. Adequado para contas novas ou que já sofreram alguma restrição. Com os delays atuais, esse limite raramente será atingido — o próprio tempo entre as operações já mantém o ritmo baixo."
+      },
+      "safe": {
+        "label": "Segura",
+        "badge": "Recomendado",
+        "rate": "40 remoções/hora · 120 remoções/dia",
+        "body": "Equilíbrio entre velocidade e segurança. Recomendado para uso contínuo em contas com mais de 6 meses de uso regular. É o modo padrão e o mais indicado para sessões longas."
+      },
+      "risky": {
+        "label": "Arriscada",
+        "badge": "Alto risco",
+        "rate": "80 remoções/hora · 300 remoções/dia",
+        "body": "Volume próximo aos limites internos do Instagram. Pode acionar bloqueios temporários de ação, redução de alcance (shadowban) ou, em casos repetidos, suspensão da conta. Use apenas em contas estabelecidas e de forma pontual."
+      }
+    },
+    "consequences": {
+      "title": "O que pode acontecer se os limites forem ultrapassados",
+      "actionBlocked": {
+        "label": "Action Blocked",
+        "body": "O Instagram bloqueia temporariamente a ação de unfollow, geralmente por 24 a 48 horas. A conta continua funcionando normalmente para outras ações. É o aviso mais comum e geralmente passa sem consequências se o comportamento for corrigido imediatamente."
+      },
+      "shadowban": {
+        "label": "Shadowban",
+        "body": "O conteúdo da conta para de aparecer em hashtags e na aba Explorar sem aviso. O perfil continua existindo e publicando normalmente, mas o alcance orgânico cai drasticamente. Pode durar dias ou semanas."
+      },
+      "suspension": {
+        "label": "Suspensão temporária ou permanente",
+        "body": "Em casos de uso abusivo e reincidente, o Instagram pode suspender a conta temporariamente ou permanentemente. Essa situação raramente acontece por automação de unfollow isolada, mas o risco existe especialmente em contas novas ou com histórico de violações."
+      }
+    },
+    "bestPractices": {
+      "title": "Boas práticas",
+      "items": [
+        "Use o modo Segura como padrão. Aumente apenas em situações pontuais e em contas estabelecidas.",
+        "Não execute o app 24 horas por dia. Faça sessões de limpeza periódicas com intervalos de inatividade entre elas.",
+        "Se receber um \"Action Blocked\", pare imediatamente e aguarde pelo menos 24 horas antes de retomar.",
+        "Evite combinar muitos filtros simultâneos se tiver pressa — cada filtro adiciona chamadas extras à API e aumenta o tempo total.",
+        "O filtro de \"não me segue de volta\" é o mais custoso em termos de API. Em contas com muitos seguimentos, o processo pode ser bastante lento.",
+        "O Session ID expira quando você faz logout no navegador. Gere um novo sempre que o app reportar erro de autenticação."
+      ]
+    }
+  },
   "about": {
     "title": "Como funciona",
     "subtitle": "Entenda os mecanismos de segurança, os limites configurados e os riscos de cada modo de operação.",

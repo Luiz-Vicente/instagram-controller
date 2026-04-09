@@ -103,6 +103,138 @@
     "error": "Error",
     "stopped": "Stopped"
   },
+  "unfollow": {
+    "form": {
+      "title": "Configuration",
+      "description": "Configure your credentials and removal mode.",
+      "unfollowedToday": "{count} removed today",
+      "errorStarting": "Error starting.",
+      "mode": {
+        "label": "Removal mode",
+        "tooltip": "Defines the removal speed. Faster modes increase the risk of temporary blocking by the platform. We recommend Safe mode for continuous use.",
+        "rateInfo": "{perHour} removals/hour · {perDay} removals/day"
+      },
+      "filters": {
+        "label": "Filters",
+        "notFollowingBack": "Remove only accounts that don't follow me back",
+        "minFollowers": "Skip accounts with fewer than X followers",
+        "minFollowersPlaceholder": "Minimum followers",
+        "maxFollowers": "Skip accounts with more than X followers",
+        "maxFollowersPlaceholder": "Maximum followers",
+      },
+      "submit": "Start removal",
+      "submitting": "Starting..."
+    },
+    "progress": {
+      "title": "Removing followings",
+      "description": "Track progress in real time.",
+      "unfollowed": "Removed",
+      "skipped": "Skipped",
+      "today": "Today",
+      "of": "of",
+      "keepTabOpen": "Do not close this tab while the process is running.",
+      "awaitingLogs": "Awaiting logs...",
+      "stop": "Stop removal",
+      "stopping": "Stopping...",
+      "newUnfollow": "New removal"
+    }
+  },
+  "aboutUnfollow": {
+    "title": "How it works",
+    "subtitle": "Understand the security mechanisms, available filters, and risks of each removal mode.",
+    "back": "Back",
+    "overview": {
+      "title": "Overview",
+      "p1": "The tool accesses your own account's following list and, for each account found, applies the configured filters. If the account passes all filters, the unfollow is executed with a random delay between each action to simulate human behavior.",
+      "p2": "All processing happens on the local server — no data is sent to external services other than Instagram itself. The session is authenticated with your Session ID, which never leaves the local environment."
+    },
+    "filters": {
+      "title": "How the filters work",
+      "notFollowingBack": {
+        "title": "Remove only accounts that don't follow me back",
+        "body": "For each account in the list, the app queries the friendship status via API before executing the unfollow. If the account follows you back (followed_by = true), it is skipped. Note: this filter generates an extra API call per account, which increases total execution time and request volume."
+      },
+      "minFollowers": {
+        "title": "Skip accounts with fewer than X followers",
+        "body": "Before executing the unfollow, the app fetches the account's profile to check the follower count. Accounts with fewer followers than the configured value are skipped. Useful for preserving followings of smaller, closer accounts."
+      },
+      "maxFollowers": {
+        "title": "Skip accounts with more than X followers",
+        "body": "Similar to the minimum filter, but in the opposite direction. Large accounts (influencers, brands) are preserved. Useful for keeping followings of interest without removing them in bulk."
+      },
+      "combining": {
+        "title": "Combining filters",
+        "body": "Filters are cumulative — an account is only removed if it passes all active filters simultaneously. The more active filters, the more API calls are made per account and the slower the processing. Use sparingly."
+      }
+    },
+    "mechanisms": {
+      "title": "Defense mechanisms",
+      "delays": {
+        "title": "Delays between removals",
+        "body": "After each successful unfollow, the app waits between 60 and 120 seconds before the next action. When checking friendship status or fetching profiles, extra delays of 5 to 15 seconds are added per query. These random intervals avoid regular patterns that detection systems easily identify."
+      },
+      "batch": {
+        "title": "Batch pauses",
+        "body": "Every 10 consecutive removals, the app takes an extra break of 2 to 5 minutes. This reproduces the behavior of someone stopping to check the feed, reply to messages, or simply rest between cleanup sessions."
+      },
+      "rateLimit": {
+        "title": "Sliding window rate limit",
+        "body": "Hourly and daily limits are enforced with a real sliding window — not a simple counter that resets at midnight. The day's history is saved in the browser and loaded in the next session, preventing closing and reopening the app from resetting the counter."
+      },
+      "retry": {
+        "title": "Retry with backoff on API errors",
+        "body": "For critical calls, the app retries on HTTP 429 or 503 errors, waiting 30s, 60s, and 90s between attempts. For filter checks, the strategy is to fail fast — if the API doesn't respond, the account is let through instead of freezing the process."
+      }
+    },
+    "modes": {
+      "title": "Removal modes and risk",
+      "intro": "Modes control how many removals the app executes per hour and per day. Instagram monitors mass unfollow behavior similarly to follows — high volumes trigger the same defense systems.",
+      "ultraSafe": {
+        "label": "Ultra Safe",
+        "badge": "Minimum risk",
+        "rate": "20 removals/hour · 60 removals/day",
+        "body": "Very low volume, well below Instagram's internal limits. Suitable for new accounts or those that have already experienced restrictions. With current delays, this limit will rarely be reached."
+      },
+      "safe": {
+        "label": "Safe",
+        "badge": "Recommended",
+        "rate": "40 removals/hour · 120 removals/day",
+        "body": "Balance between speed and safety. Recommended for continuous use on accounts with more than 6 months of regular activity. This is the default mode and most suitable for long sessions."
+      },
+      "risky": {
+        "label": "Risky",
+        "badge": "High risk",
+        "rate": "80 removals/hour · 300 removals/day",
+        "body": "Volume close to Instagram's internal limits. May trigger temporary action blocks, reach reduction (shadowban), or in repeated cases, account suspension. Use only on established accounts and occasionally."
+      }
+    },
+    "consequences": {
+      "title": "What can happen if limits are exceeded",
+      "actionBlocked": {
+        "label": "Action Blocked",
+        "body": "Instagram temporarily blocks the unfollow action, usually for 24 to 48 hours. The account continues to work normally for other actions. It's the most common warning and generally passes without consequences if behavior is corrected immediately."
+      },
+      "shadowban": {
+        "label": "Shadowban",
+        "body": "The account's content stops appearing in hashtags and the Explore tab without notice. The profile continues to exist and post normally, but organic reach drops dramatically. It can last days or weeks."
+      },
+      "suspension": {
+        "label": "Temporary or permanent suspension",
+        "body": "In cases of abusive and repeated use, Instagram may suspend the account temporarily or permanently. This rarely happens from isolated unfollow automation, but the risk exists especially for new accounts or those with a history of violations."
+      }
+    },
+    "bestPractices": {
+      "title": "Best practices",
+      "items": [
+        "Use Safe mode as the default. Increase only in specific situations on established accounts.",
+        "Do not run the app 24 hours a day. Run periodic cleanup sessions with periods of inactivity in between.",
+        "If you receive an \"Action Blocked\", stop immediately and wait at least 24 hours before resuming.",
+        "Avoid combining too many filters simultaneously if you're in a hurry — each filter adds extra API calls and increases total processing time.",
+        "The \"doesn't follow me back\" filter is the most API-intensive. On accounts with many followings, the process can be quite slow.",
+        "The Session ID expires when you log out in the browser. Generate a new one whenever the app reports an authentication error."
+      ]
+    }
+  },
   "about": {
     "title": "How it works",
     "subtitle": "Understand the security mechanisms, configured limits, and risks of each operation mode.",

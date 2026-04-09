@@ -80,19 +80,23 @@
 					</div>
 				</NuxtLink>
 
-				<!-- Removedor (em breve) -->
-				<div class="flex items-start gap-3 rounded-lg border p-3 opacity-50 cursor-not-allowed select-none">
-					<div class="p-1.5 rounded-md bg-muted text-muted-foreground shrink-0 mt-0.5">
+				<!-- Removedor de seguimentos -->
+				<NuxtLink
+					to="/unfollow"
+					class="flex items-start gap-3 rounded-lg border p-3 transition-colors hover:bg-muted/50 hover:border-primary/50 group"
+					@click="sidebarOpen = false"
+				>
+					<div class="p-1.5 rounded-md bg-primary/10 text-primary shrink-0 mt-0.5">
 						<UserMinus class="w-4 h-4" />
 					</div>
 					<div class="flex flex-col gap-0.5 min-w-0">
 						<div class="flex items-center gap-1.5 flex-wrap">
 							<span class="text-sm font-medium">{{ $t('home.unfollower.title') }}</span>
-							<span class="text-xs bg-muted text-muted-foreground rounded px-1.5 py-0.5 leading-none">{{ $t('home.soon') }}</span>
+							<span class="text-xs bg-primary text-primary-foreground rounded px-1.5 py-0.5 leading-none">{{ $t('home.new') }}</span>
 						</div>
 						<p class="text-xs text-muted-foreground leading-relaxed">{{ $t('home.unfollower.description') }}</p>
 					</div>
-				</div>
+				</NuxtLink>
 
 				<!-- Gerenciador de posts (em breve) -->
 				<div class="flex items-start gap-3 rounded-lg border p-3 opacity-50 cursor-not-allowed select-none">
