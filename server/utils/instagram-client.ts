@@ -219,6 +219,17 @@ export class InstagramClient {
     return { users: data.users ?? [], next_max_id: data.next_max_id }
   }
 
+  async removeFollower(userId: string): Promise<void> {
+    const uuid = this.generateUUID()
+    const body = `_uuid=${uuid}&user_id=${userId}`
+
+    await this.executeWithRetry(() =>
+      this.mobileClient.post(`/api/v1/friendships/remove_follower/${userId}/`, body, {
+        headers: { Cookie: this.buildCookieHeader(), 'X-CSRFToken': this.csrfToken },
+      })
+    )
+  }
+
   async unfollowUser(userId: string): Promise<void> {
     const uuid = this.generateUUID()
     const body = `_uuid=${uuid}&_uid=${userId}&user_id=${userId}&radio_type=wifi-none`

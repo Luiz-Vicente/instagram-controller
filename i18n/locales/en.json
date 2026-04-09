@@ -12,6 +12,10 @@
       "title": "Follower remover",
       "description": "Remove followings in bulk with configurable filters: by reciprocity, follower range, or all at once."
     },
+    "removeFollowers": {
+      "title": "Follower remover",
+      "description": "Remove followers in bulk with filters by follower range or all at once."
+    },
     "postManager": {
       "title": "Post manager",
       "description": "Archive everything, bulk delete, filter by post type (photos, reels, carousels) and manage your profile efficiently."
@@ -102,6 +106,41 @@
     "done": "Done",
     "error": "Error",
     "stopped": "Stopped"
+  },
+  "removeFollowers": {
+    "form": {
+      "title": "Configuration",
+      "description": "Configure your credentials and removal mode.",
+      "removedToday": "{count} removed today",
+      "errorStarting": "Error starting.",
+      "mode": {
+        "label": "Removal mode",
+        "tooltip": "Defines the removal speed. Faster modes increase the risk of temporary blocking by the platform.",
+        "rateInfo": "{perHour} removals/hour · {perDay} removals/day"
+      },
+      "filters": {
+        "label": "Filters",
+        "minFollowers": "Keep followers with few followers (don't remove below minimum)",
+        "minFollowersPlaceholder": "Minimum followers",
+        "maxFollowers": "Keep followers with many followers (don't remove above maximum)",
+        "maxFollowersPlaceholder": "Maximum followers"
+      },
+      "submit": "Start removal",
+      "submitting": "Starting..."
+    },
+    "progress": {
+      "title": "Removing followers",
+      "description": "Track progress in real time.",
+      "removed": "Removed",
+      "skipped": "Skipped",
+      "today": "Today",
+      "of": "of",
+      "keepTabOpen": "Do not close this tab while the process is running.",
+      "awaitingLogs": "Awaiting logs...",
+      "stop": "Stop removal",
+      "stopping": "Stopping...",
+      "newOperation": "New removal"
+    }
   },
   "posts": {
     "form": {

@@ -12,6 +12,10 @@
       "title": "Removedor de seguimentos",
       "description": "Remova seguimentos em massa com filtros configuráveis: por reciprocidade, faixa de seguidores ou todos de uma vez."
     },
+    "removeFollowers": {
+      "title": "Removedor de seguidores",
+      "description": "Remova seguidores em massa com filtros por faixa de seguidores ou todos de uma vez."
+    },
     "postManager": {
       "title": "Gerenciador de posts",
       "description": "Arquive tudo, exclua em massa, filtre por tipo de publicação (fotos, reels, carrosséis) e gerencie seu perfil com eficiência."
@@ -102,6 +106,41 @@
     "done": "Concluído",
     "error": "Erro",
     "stopped": "Interrompido"
+  },
+  "removeFollowers": {
+    "form": {
+      "title": "Configuração",
+      "description": "Configure suas credenciais e o modo de remoção.",
+      "removedToday": "{count} removidos hoje",
+      "errorStarting": "Erro ao iniciar.",
+      "mode": {
+        "label": "Modo de remoção",
+        "tooltip": "Define a velocidade das remoções. Modos mais rápidos aumentam o risco de bloqueio temporário pela plataforma.",
+        "rateInfo": "{perHour} remoções/hora · {perDay} remoções/dia"
+      },
+      "filters": {
+        "label": "Filtros",
+        "minFollowers": "Preservar seguidores com poucos seguidores (não remover abaixo do mínimo)",
+        "minFollowersPlaceholder": "Mínimo de seguidores",
+        "maxFollowers": "Preservar seguidores com muitos seguidores (não remover acima do máximo)",
+        "maxFollowersPlaceholder": "Máximo de seguidores"
+      },
+      "submit": "Iniciar remoção",
+      "submitting": "Iniciando..."
+    },
+    "progress": {
+      "title": "Removendo seguidores",
+      "description": "Acompanhe o progresso em tempo real.",
+      "removed": "Removidos",
+      "skipped": "Pulados",
+      "today": "Hoje",
+      "of": "de",
+      "keepTabOpen": "Não feche esta aba enquanto o processo estiver em execução.",
+      "awaitingLogs": "Aguardando logs...",
+      "stop": "Parar remoção",
+      "stopping": "Parando...",
+      "newOperation": "Nova remoção"
+    }
   },
   "posts": {
     "form": {

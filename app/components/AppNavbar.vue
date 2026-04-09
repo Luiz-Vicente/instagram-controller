@@ -98,6 +98,24 @@
 					</div>
 				</NuxtLink>
 
+				<!-- Removedor de seguidores -->
+				<NuxtLink
+					to="/remove-followers"
+					class="flex items-start gap-3 rounded-lg border p-3 transition-colors hover:bg-muted/50 hover:border-primary/50 group"
+					@click="sidebarOpen = false"
+				>
+					<div class="p-1.5 rounded-md bg-primary/10 text-primary shrink-0 mt-0.5">
+						<UserX class="w-4 h-4" />
+					</div>
+					<div class="flex flex-col gap-0.5 min-w-0">
+						<div class="flex items-center gap-1.5 flex-wrap">
+							<span class="text-sm font-medium">{{ $t('home.removeFollowers.title') }}</span>
+							<span class="text-xs bg-primary text-primary-foreground rounded px-1.5 py-0.5 leading-none">{{ $t('home.new') }}</span>
+						</div>
+						<p class="text-xs text-muted-foreground leading-relaxed">{{ $t('home.removeFollowers.description') }}</p>
+					</div>
+				</NuxtLink>
+
 				<!-- Gerenciador de posts -->
 				<NuxtLink
 					to="/posts"
@@ -124,7 +142,7 @@
 import { ref, computed } from 'vue'
 import { useRoute } from 'vue-router'
 import { useDark, useToggle } from '@vueuse/core'
-import { Menu, X, Sun, Moon, UserPlus, UserMinus, LayoutGrid } from 'lucide-vue-next'
+import { Menu, X, Sun, Moon, UserPlus, UserMinus, UserX, LayoutGrid } from 'lucide-vue-next'
 import { Badge } from '@/components/ui/badge'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 
