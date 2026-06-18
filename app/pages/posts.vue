@@ -11,6 +11,13 @@
 				</nav>
 				<h1 class="text-4xl text-white leading-none">{{ $t('home.postManager.title') }}</h1>
 				<p class="text-sm text-white/75">{{ $t('home.postManager.description') }}</p>
+				<NuxtLink
+					to="/posts-about"
+					class="flex items-center gap-1 text-xs text-white/70 hover:text-white transition-colors w-fit mt-1"
+				>
+					<Info class="w-3.5 h-3.5" />
+					{{ $t('nav.howItWorks') }}
+				</NuxtLink>
 			</div>
 		</div>
 
@@ -24,39 +31,6 @@
 				</div>
 
 				<div class="flex flex-col gap-6">
-					<!-- Session ID -->
-					<div class="flex flex-col gap-1.5">
-						<div class="flex items-center gap-1.5">
-							<Label for="session-id">Session ID</Label>
-							<Tooltip>
-								<TooltipTrigger as-child>
-									<button type="button" class="text-muted-foreground hover:text-foreground transition-colors">
-										<Info class="w-3.5 h-3.5" />
-									</button>
-								</TooltipTrigger>
-								<TooltipContent class="max-w-64">{{ $t('form.sessionId.tooltip') }}</TooltipContent>
-							</Tooltip>
-						</div>
-						<div class="relative">
-							<Input
-								id="session-id"
-								v-model="sessionId"
-								:type="showSessionId ? 'text' : 'password'"
-								:placeholder="$t('form.sessionId.placeholder')"
-								class="pr-9"
-							/>
-							<button
-								type="button"
-								class="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
-								:aria-label="showSessionId ? $t('form.sessionId.hide') : $t('form.sessionId.show')"
-								@click="showSessionId = !showSessionId"
-							>
-								<EyeOff v-if="showSessionId" class="w-4 h-4" />
-								<Eye v-else class="w-4 h-4" />
-							</button>
-						</div>
-					</div>
-
 					<!-- Ação -->
 					<div class="flex flex-col gap-3">
 						<Label>{{ $t('posts.form.action.label') }}</Label>
@@ -148,7 +122,7 @@
 				<button
 					class="w-full inline-flex items-center justify-center rounded-md text-sm font-medium h-9 px-4 py-2 transition-colors disabled:opacity-50 disabled:pointer-events-none"
 					:class="action === 'delete' ? 'bg-destructive text-destructive-foreground hover:bg-destructive/90' : 'bg-primary text-primary-foreground hover:bg-primary/90'"
-					:disabled="!sessionId || starting"
+					:disabled="starting"
 					@click="start"
 				>
 					<Loader2 v-if="starting" class="w-4 h-4 mr-2 animate-spin" />
@@ -176,20 +150,6 @@
 				<div v-if="isScanning" class="flex items-center gap-2 rounded-lg bg-muted px-3 py-2 text-sm text-muted-foreground">
 					<Loader2 class="w-4 h-4 shrink-0 animate-spin" />
 					<span>{{ $t('posts.progress.scanning') }}</span>
-				</div>
-
-				<!-- Progress bar (only shown when total is known) -->
-				<div v-if="!isScanning && progress.total > 0" class="flex flex-col gap-2">
-					<div class="flex justify-between text-sm text-muted-foreground">
-						<span>{{ progress.processed }} {{ processedLabel }}</span>
-						<span>{{ progressPct }}% {{ $t('posts.progress.of') }} {{ progress.total.toLocaleString(locale) }}</span>
-					</div>
-					<div class="w-full h-2 bg-muted rounded-full overflow-hidden">
-						<div
-							class="h-full bg-primary transition-all duration-500 rounded-full"
-							:style="{ width: `${progressPct}%` }"
-						/>
-					</div>
 				</div>
 
 				<!-- Stats -->
@@ -226,6 +186,10 @@
 							{{ line }}
 						</span>
 						<span v-if="logs.length === 0" class="text-muted-foreground italic">{{ $t('posts.progress.awaitingLogs') }}</span>
+						<div v-if="countdown !== null" class="flex items-center gap-1.5 mt-0.5 text-amber-500 dark:text-amber-400">
+							<Clock class="w-3 h-3 shrink-0" />
+							<span class="tabular-nums">{{ fmtCountdown(countdown) }}</span>
+						</div>
 					</div>
 				</div>
 
@@ -260,14 +224,16 @@ import { Label } from '@/components/ui/label'
 import { Badge } from '@/components/ui/badge'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
-import { Info, Loader2, Clock, Eye, EyeOff, ChevronRight, Archive, Trash2, Image, Video, Clapperboard, Images, TriangleAlert } from 'lucide-vue-next'
+import { Info, Loader2, Clock, ChevronRight, Archive, Trash2, Image, Video, Clapperboard, Images, TriangleAlert } from 'lucide-vue-next'
+
+definePageMeta({ middleware: 'require-session' })
+
+const { sessionId } = useSession()
 
 type PostActionType = 'archive' | 'delete'
 type PostMediaType = 'photo' | 'video' | 'reel' | 'carousel'
 
 // ── Form state ──────────────────────────────────────────────────────────────
-const sessionId = ref('')
-const showSessionId = ref(false)
 const action = ref<PostActionType>('archive')
 const postTypes = ref<PostMediaType[]>([])
 const filterByDate = ref(false)
@@ -283,7 +249,14 @@ const progress = ref({ processed: 0, errors: 0, total: 0 })
 const isScanning = ref(true)
 const logs = ref<string[]>([])
 const pauseInfo = ref('')
+const countdown = ref<number | null>(null)
 const logEl = ref<HTMLElement | null>(null)
+
+function fmtCountdown(sec: number): string {
+	const m = Math.floor(sec / 60)
+	const s = sec % 60
+	return m > 0 ? `${m}m ${s}s` : `${s}s`
+}
 
 // ── SSE ──────────────────────────────────────────────────────────────────────
 const sseUrl = ref<string | null>(null)
@@ -297,6 +270,7 @@ watch(sseData, async (raw) => {
 		followed?: number
 		skipped?: number
 		total?: number
+		seconds?: number
 	}
 
 	if (event.followed !== undefined) progress.value.processed = event.followed
@@ -306,7 +280,17 @@ watch(sseData, async (raw) => {
 		if (event.total > 0) isScanning.value = false
 	}
 
+	if (event.type === 'countdown') {
+		const prev = countdown.value
+		countdown.value = (event.seconds ?? 0) > 0 ? (event.seconds ?? 0) : null
+		if (prev === null && countdown.value !== null) {
+			await nextTick()
+			if (logEl.value) logEl.value.scrollTop = logEl.value.scrollHeight
+		}
+	}
+
 	if (event.type === 'log' && event.message) {
+		countdown.value = null
 		logs.value.push(event.message)
 		await nextTick()
 		if (logEl.value) logEl.value.scrollTop = logEl.value.scrollHeight
@@ -327,16 +311,12 @@ watch(sseData, async (raw) => {
 		isScanning.value = false
 		if (event.message) logs.value.push(event.message)
 		pauseInfo.value = ''
+		countdown.value = null
 		sseUrl.value = null
 	}
 })
 
 // ── Computed ─────────────────────────────────────────────────────────────────
-const progressPct = computed(() => {
-	if (!progress.value.total) return 0
-	return Math.min(100, Math.round((progress.value.processed / progress.value.total) * 100))
-})
-
 const processedLabel = computed(() =>
 	action.value === 'archive' ? t('posts.progress.archived') : t('posts.progress.deleted')
 )
@@ -423,6 +403,7 @@ function reset() {
 	isScanning.value = true
 	logs.value = []
 	pauseInfo.value = ''
+	countdown.value = null
 	progress.value = { processed: 0, errors: 0, total: 0 }
 }
 </script>

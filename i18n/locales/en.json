@@ -49,6 +49,7 @@
   "nav": {
     "title": "Instagram Controller",
     "tools": "Tools",
+    "account": "My account",
     "howItWorks": "How it works",
     "betaWarning": "This tool is in beta. Use it sparingly and at your own risk — misuse may result in temporary restrictions on your Instagram account."
   },
@@ -204,10 +205,10 @@
       },
       "filters": {
         "label": "Filters",
-        "notFollowingBack": "Remove only accounts that don't follow me back",
-        "minFollowers": "Skip accounts with fewer than X followers",
+        "notFollowingBack": "Remove only accounts that don't follow me back (keep mutual followers)",
+        "minFollowers": "Keep accounts I follow with few followers (don't unfollow below minimum)",
         "minFollowersPlaceholder": "Minimum followers",
-        "maxFollowers": "Skip accounts with more than X followers",
+        "maxFollowers": "Keep accounts I follow with many followers (don't unfollow above maximum)",
         "maxFollowersPlaceholder": "Maximum followers",
       },
       "submit": "Start removal",
@@ -225,6 +226,89 @@
       "stop": "Stop removal",
       "stopping": "Stopping...",
       "newUnfollow": "New removal"
+    }
+  },
+  "aboutRemoveFollowers": {
+    "title": "How it works",
+    "subtitle": "Understand the difference between removing followers and unfollowing, available filters, and risks.",
+    "back": "Back",
+    "overview": {
+      "title": "Overview",
+      "p1": "Removing a follower is different from unfollowing someone. This tool removes people from your followers list — they stop following you without receiving an explicit notification. All processing happens on the local server, without sending data to external services other than Instagram itself.",
+      "p2": "The tool iterates through your followers list page by page, applies the configured filters, and removes each account that is not preserved by the filters. Random delays between each action simulate human behavior and reduce detection risk."
+    },
+    "filters": {
+      "title": "How the filters work",
+      "minFollowers": {
+        "title": "Keep followers with few followers",
+        "body": "Sets a follower floor: accounts with fewer followers than the configured value are preserved and not removed. Useful for keeping smaller, closer profiles — friends, acquaintances — who typically have few followers."
+      },
+      "maxFollowers": {
+        "title": "Keep followers with many followers",
+        "body": "Sets a follower ceiling: accounts with more followers than the configured value are preserved. Useful for keeping large profiles — brands, influencers — that you want to remain followed by."
+      },
+      "combining": {
+        "title": "Combining filters",
+        "body": "Filters are cumulative. An account is only removed if it is not protected by any active filter. Using both minimum and maximum preserves very small and very large accounts, removing only those in between. Each follower filter generates an extra API call, increasing total processing time."
+      }
+    },
+    "mechanisms": {
+      "title": "Defense mechanisms",
+      "delays": {
+        "title": "Delays between removals",
+        "body": "After each successful removal, the app waits between 60 and 120 seconds before the next action. When follower filters are active, extra delays of 5 to 10 seconds are added per profile lookup. Intervals are always random to avoid detectable patterns."
+      },
+      "batch": {
+        "title": "Batch pauses",
+        "body": "Every 10 consecutive removals, the app takes an extra pause of 2 to 5 minutes, simulating the natural behavior of someone stopping to check the feed or rest between sessions."
+      },
+      "rateLimit": {
+        "title": "Daily and hourly rate limit",
+        "body": "Each mode defines how many removals are allowed per hour and per day. The history is saved in the browser and loaded in the next session, ensuring the counter doesn't reset when closing and reopening the app."
+      }
+    },
+    "modes": {
+      "title": "Removal modes and risk",
+      "intro": "Instagram monitors follower removals similarly to other automated behaviors. High volumes in a short time increase the risk of restrictions.",
+      "ultraSafe": {
+        "label": "Ultra Safe",
+        "badge": "Minimum risk",
+        "rate": "20 removals/hour · 60 removals/day",
+        "body": "Very conservative pace, ideal for new accounts or those that have previously had restrictions."
+      },
+      "safe": {
+        "label": "Safe",
+        "badge": "Recommended",
+        "rate": "40 removals/hour · 120 removals/day",
+        "body": "Balance between speed and safety. Recommended for continuous use on established accounts."
+      },
+      "risky": {
+        "label": "Risky",
+        "badge": "High risk",
+        "rate": "80 removals/hour · 300 removals/day",
+        "body": "Volume close to Instagram's limits. May trigger temporary blocks or shadowban. Use only occasionally on solid accounts."
+      }
+    },
+    "consequences": {
+      "title": "What can happen",
+      "actionBlocked": {
+        "label": "Action Blocked",
+        "body": "Instagram temporarily blocks the follower removal action, usually for 24 to 48 hours. The account continues to work normally for other actions. Stop the app immediately and wait before resuming."
+      },
+      "shadowban": {
+        "label": "Shadowban",
+        "body": "Excessive use may reduce profile reach without notice — posts stop appearing in hashtags and Explore. Usually temporary, but can last days or weeks."
+      }
+    },
+    "bestPractices": {
+      "title": "Best practices",
+      "items": [
+        "Use Safe mode as the default. Increase only in specific situations.",
+        "Don't run the app continuously — do sessions with periods of inactivity in between.",
+        "If you receive an \"Action Blocked\", stop immediately and wait at least 24 hours.",
+        "Follower filters make extra API calls per processed account. On large lists, this significantly increases execution time.",
+        "The Session ID expires when you log out of Instagram. Generate a new one if the app reports an authentication error."
+      ]
     }
   },
   "aboutUnfollow": {
@@ -321,6 +405,96 @@
         "The \"doesn't follow me back\" filter is the most API-intensive. On accounts with many followings, the process can be quite slow.",
         "The Session ID expires when you log out in the browser. Generate a new one whenever the app reports an authentication error."
       ]
+    }
+  },
+  "aboutPosts": {
+    "title": "How it works",
+    "subtitle": "Understand the two available actions, how filters apply, and the execution process.",
+    "back": "Back",
+    "overview": {
+      "title": "Overview",
+      "p1": "The post manager acts directly on your account: it first scans all posts matching the configured filters, then executes the chosen action (archive or delete) on each one with humanized delays between each operation.",
+      "p2": "All processing happens on the local server. No content is sent to external services other than Instagram itself."
+    },
+    "actions": {
+      "title": "Available actions",
+      "archive": {
+        "title": "Archive",
+        "body": "The post is hidden from the public profile but remains in your account, accessible under Settings → Archive. It's a reversible action — you can unarchive posts at any time through the Instagram app itself."
+      },
+      "delete": {
+        "title": "Delete",
+        "body": "The post is permanently removed. There is no recovery possible after deletion. Use with care — the app displays a warning before starting this action."
+      }
+    },
+    "filters": {
+      "title": "How the filters work",
+      "types": {
+        "title": "Post types",
+        "body": "You can select one or more types: Photo (static image), Video (regular feed video), Reel (short-form video in reels format), and Carousel (album with multiple images or videos). Leaving all unchecked is equivalent to selecting all types."
+      },
+      "dateRange": {
+        "title": "Date range filter",
+        "body": "Defines a date interval with optional start and end. Posts are returned from newest to oldest — the app automatically stops scanning when it goes past the start date, without needing to scan the entire account. You can set only the start, only the end, or both."
+      },
+      "combining": {
+        "title": "Combining filters",
+        "body": "Type and date are applied together: only posts that match the selected type AND fall within the defined period are processed. The scanning phase completes before any action is executed, letting you see the total posts found before starting."
+      }
+    },
+    "mechanisms": {
+      "title": "How execution works",
+      "scan": {
+        "title": "Phase 1 — Scanning",
+        "body": "Before executing any action, the app scans all posts in the account applying the filters. Only after scanning is complete does the progress bar appear with the actual total posts to process. This avoids acting on posts without knowing the total volume."
+      },
+      "delays": {
+        "title": "Phase 2 — Execution with delays",
+        "body": "Each action (archive or delete) is followed by a random delay between 4 and 10 seconds before the next one. These intervals simulate the behavior of someone performing actions manually and reduce detection risk."
+      },
+      "batch": {
+        "title": "Batch pauses",
+        "body": "Every 20 consecutive actions, the app pauses for 15 to 30 seconds before continuing. This reproduces the natural behavior of someone briefly stopping between blocks of actions."
+      },
+      "retry": {
+        "title": "Retry on rate limit errors",
+        "body": "If the API returns a 429 (rate limit) or 503 error during execution, the app automatically pauses for 10 minutes before resuming — without interrupting the process or losing progress."
+      }
+    },
+    "bestPractices": {
+      "title": "Best practices",
+      "items": [
+        "Prefer archiving before deleting — you can undo archiving, but not deletion.",
+        "Use the date filter to process posts in smaller batches instead of the entire account at once.",
+        "Don't close the tab during execution. The process runs on the server, but progress events arrive via SSE and stop if the tab closes.",
+        "If you receive an unexpected rate limit error, the app pauses automatically. Wait for it to resume without intervening.",
+        "The Session ID expires when you log out of Instagram. Generate a new one if the app reports an authentication error."
+      ]
+    }
+  },
+  "account": {
+    "title": "My account",
+    "subtitle": "Manage the Instagram Session ID linked to the tools.",
+    "sessionId": {
+      "label": "Session ID",
+      "placeholder": "Paste your Session ID here",
+      "tooltip": "Authentication token for your Instagram session. To get it, open Instagram in your browser, open DevTools (F12), go to Application → Cookies and copy the value of the sessionid cookie.",
+      "show": "Show Session ID",
+      "hide": "Hide Session ID",
+      "hint": "Your Session ID is stored locally in this browser only."
+    },
+    "save": "Save and verify",
+    "saving": "Verifying...",
+    "remove": "Remove session",
+    "verified": "Verified",
+    "error": "Invalid or expired Session ID. Please check and try again.",
+    "profile": {
+      "followers": "followers",
+      "following": "following"
+    },
+    "noSession": {
+      "notice": "Session ID not configured.",
+      "cta": "Set up your account →"
     }
   },
   "about": {

@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { createJob, getJob } from '../../utils/job-manager'
+import { createJob, getJob, clearJob } from '../../utils/job-manager'
 import { runUnfollowJob } from '../../utils/unfollow-runner'
 
 const bodySchema = z.object({
@@ -14,8 +14,10 @@ previousTimestamps: z.array(z.number()).default([]),
 })
 
 export default defineEventHandler(async (event) => {
-  if (getJob()) {
-    throw createError({ statusCode: 409, message: 'Já existe uma operação em andamento.' })
+  const existing = getJob()
+  if (existing) {
+    existing.shouldStop = true
+    clearJob(existing)
   }
 
   const result = bodySchema.safeParse(await readBody(event))

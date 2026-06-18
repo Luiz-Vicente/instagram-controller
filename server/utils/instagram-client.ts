@@ -8,6 +8,7 @@ export interface UserInfo {
   is_private: boolean
   follower_count?: number
   following_count?: number
+  profile_pic_url?: string
 }
 
 export interface FollowersPage {
@@ -152,10 +153,10 @@ export class InstagramClient {
       maxAttempts
     )
 
-    const infoData = infoRes.data as { user: { pk: string; username: string; full_name: string; is_private: boolean; follower_count: number } }
+    const infoData = infoRes.data as { user: { pk: string; username: string; full_name: string; is_private: boolean; follower_count: number; following_count?: number; profile_pic_url?: string } }
     if (!infoData?.user) throw new Error('Resposta inesperada de /users/{pk}/info/.')
     const u = infoData.user
-    return { pk: String(u.pk), username: u.username, full_name: u.full_name, is_private: u.is_private, follower_count: u.follower_count }
+    return { pk: String(u.pk), username: u.username, full_name: u.full_name, is_private: u.is_private, follower_count: u.follower_count, following_count: u.following_count, profile_pic_url: u.profile_pic_url }
   }
 
   async fetchFollowersPage(userId: string, maxId?: string): Promise<FollowersPage> {

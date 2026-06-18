@@ -5,6 +5,15 @@
 			<p class="text-sm text-muted-foreground">{{ $t('home.subtitle') }}</p>
 		</div>
 
+		<!-- Aviso de sessão não configurada -->
+		<div v-if="!sessionId" class="flex items-center gap-3 rounded-lg border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-sm">
+			<AlertCircle class="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0" />
+			<span class="text-amber-700 dark:text-amber-400">
+				{{ $t('account.noSession.notice') }}
+				<NuxtLink to="/account" class="underline font-medium">{{ $t('account.noSession.cta') }}</NuxtLink>
+			</span>
+		</div>
+
 		<div class="flex flex-col gap-3">
 			<!-- Seguidor de seguidores -->
 			<NuxtLink
@@ -81,5 +90,7 @@
 </template>
 
 <script setup lang="ts">
-import { UserPlus, UserMinus, UserX, ArrowRight, LayoutGrid } from 'lucide-vue-next'
+import { UserPlus, UserMinus, UserX, ArrowRight, LayoutGrid, AlertCircle } from 'lucide-vue-next'
+
+const { sessionId } = useSession()
 </script>

@@ -22,6 +22,7 @@ export interface RunnerConfig {
 
 export async function runFollowJob(config: RunnerConfig, job: Job): Promise<void> {
   const log = (message: string) => emitEvent(job, { type: 'log', message, followed: job.followed, skipped: job.skipped, total: job.total })
+  const countdown = (rem: number) => emitEvent(job, { type: 'countdown', seconds: Math.ceil(rem / 1000) })
 
   try {
     const ig = new InstagramClient(config.sessionId)
@@ -57,7 +58,7 @@ export async function runFollowJob(config: RunnerConfig, job: Job): Promise<void
       if (job.shouldStop) {
         job.status = 'stopped'
         emitEvent(job, { type: 'stopped', message: 'Seguimento interrompido pelo usuário.', followed: job.followed, skipped: job.skipped, total: job.total })
-        clearJob()
+        clearJob(job)
         return
       }
 
@@ -67,7 +68,7 @@ export async function runFollowJob(config: RunnerConfig, job: Job): Promise<void
         page = await ig.fetchFollowersPage(targetProfile.pk, nextMaxId)
       } catch (err) {
         log(`Erro ao buscar seguidores: ${(err as Error).message}. Tentando novamente em 60s...`)
-        await interruptibleSleep(60_000, () => job.shouldStop)
+        await interruptibleSleep(60_000, () => job.shouldStop, countdown)
         continue
       }
       log(`Página carregada: ${page.users.length} usuário(s) encontrado(s)`)
@@ -154,11 +155,11 @@ export async function runFollowJob(config: RunnerConfig, job: Job): Promise<void
             if (isBatchEnd) {
               const pause = randomDelay(BATCH_PAUSE_MIN_SEC, BATCH_PAUSE_MAX_SEC)
               log(`Pausa de lote: ${formatDuration(pause)}`)
-              await interruptibleSleep(pause, () => job.shouldStop)
+              await interruptibleSleep(pause, () => job.shouldStop, countdown)
             } else {
               const delay = randomDelay(MIN_DELAY_SEC, MAX_DELAY_SEC)
               log(`Próximo seguimento em ${formatDuration(delay)}...`)
-              await interruptibleSleep(delay, () => job.shouldStop)
+              await interruptibleSleep(delay, () => job.shouldStop, countdown)
             }
           } else {
             job.skipped++
@@ -169,7 +170,7 @@ export async function runFollowJob(config: RunnerConfig, job: Job): Promise<void
           const status = (err as { response?: { status?: number } }).response?.status
           if (status === 429 || status === 400) {
             log('Sinal de rate-limit inesperado. Pausando 15 minutos...')
-            await interruptibleSleep(15 * 60_000, () => job.shouldStop)
+            await interruptibleSleep(15 * 60_000, () => job.shouldStop, countdown)
             continue
           }
           log(`[!] Erro ao seguir @${user.username}: ${(err as Error).message}`)
@@ -193,6 +194,6 @@ export async function runFollowJob(config: RunnerConfig, job: Job): Promise<void
     job.status = 'error'
     emitEvent(job, { type: 'error', message: (err as Error).message, followed: job.followed, skipped: job.skipped, total: job.total })
   } finally {
-    clearJob()
+    clearJob(job)
   }
 }

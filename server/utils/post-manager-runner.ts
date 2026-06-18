@@ -22,6 +22,7 @@ export interface PostManagerConfig {
 export async function runPostManagerJob(config: PostManagerConfig, job: Job): Promise<void> {
   const log = (message: string) =>
     emitEvent(job, { type: 'log', message, followed: job.followed, skipped: job.skipped, total: job.total })
+  const countdown = (rem: number) => emitEvent(job, { type: 'countdown', seconds: Math.ceil(rem / 1000) })
 
   try {
     const ig = new InstagramClient(config.sessionId)
@@ -62,7 +63,7 @@ export async function runPostManagerJob(config: PostManagerConfig, job: Job): Pr
         page = await ig.fetchUserMediaPage(currentUser.pk, nextMaxId)
       } catch (err) {
         log(`Erro ao buscar posts: ${(err as Error).message}. Tentando em 30s...`)
-        await interruptibleSleep(30_000, () => job.shouldStop)
+        await interruptibleSleep(30_000, () => job.shouldStop, countdown)
         continue
       }
 
@@ -98,7 +99,7 @@ export async function runPostManagerJob(config: PostManagerConfig, job: Job): Pr
     if (job.shouldStop) {
       job.status = 'stopped'
       emitEvent(job, { type: 'stopped', message: 'Operação interrompida pelo usuário.', followed: job.followed, skipped: job.skipped, total: job.total })
-      clearJob()
+      clearJob(job)
       return
     }
 
@@ -136,17 +137,17 @@ export async function runPostManagerJob(config: PostManagerConfig, job: Job): Pr
         if (isBatchEnd) {
           const pause = randomDelay(BATCH_PAUSE_MIN_SEC, BATCH_PAUSE_MAX_SEC)
           log(`Pausa de lote: ${formatDuration(pause)}`)
-          await interruptibleSleep(pause, () => job.shouldStop)
+          await interruptibleSleep(pause, () => job.shouldStop, countdown)
         } else {
           const delay = randomDelay(ACTION_DELAY_MIN_SEC, ACTION_DELAY_MAX_SEC)
           log(`Próxima ação em ${formatDuration(delay)}...`)
-          await interruptibleSleep(delay, () => job.shouldStop)
+          await interruptibleSleep(delay, () => job.shouldStop, countdown)
         }
       } catch (err) {
         const status = (err as { response?: { status?: number } }).response?.status
         if (status === 429 || status === 503) {
           log('Rate limit detectado. Pausando 10 minutos...')
-          await interruptibleSleep(10 * 60_000, () => job.shouldStop)
+          await interruptibleSleep(10 * 60_000, () => job.shouldStop, countdown)
           continue
         }
         log(`[!] Erro no post ${post.id}: ${(err as Error).message}`)
@@ -174,7 +175,7 @@ export async function runPostManagerJob(config: PostManagerConfig, job: Job): Pr
     job.status = 'error'
     emitEvent(job, { type: 'error', message: (err as Error).message, followed: job.followed, skipped: job.skipped, total: job.total })
   } finally {
-    clearJob()
+    clearJob(job)
   }
 }
 

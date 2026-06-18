@@ -2,13 +2,19 @@ export async function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms))
 }
 
-export async function interruptibleSleep(ms: number, shouldStop: () => boolean): Promise<void> {
+export async function interruptibleSleep(
+  ms: number,
+  shouldStop: () => boolean,
+  onTick?: (remainingMs: number) => void,
+): Promise<void> {
   const tick = 1000
   let elapsed = 0
+  onTick?.(ms)
   while (elapsed < ms) {
     if (shouldStop()) return
     await sleep(Math.min(tick, ms - elapsed))
     elapsed += tick
+    onTick?.(Math.max(0, ms - elapsed))
   }
 }
 

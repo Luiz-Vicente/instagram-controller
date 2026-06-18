@@ -24,6 +24,14 @@
 					<Menu class="w-4 h-4" />
 				</button>
 
+				<NuxtLink
+					to="/account"
+					class="p-1.5 rounded-md border border-border text-foreground hover:bg-muted transition-colors"
+					:aria-label="$t('nav.account')"
+				>
+					<User class="w-4 h-4" />
+				</NuxtLink>
+
 				<button
 					class="p-1.5 rounded-md border border-border text-foreground hover:bg-muted transition-colors"
 					:aria-label="isDark ? 'Ativar modo claro' : 'Ativar modo escuro'"
@@ -62,6 +70,20 @@
 			</div>
 
 			<div class="flex flex-col gap-2 p-4">
+				<!-- Minha conta -->
+				<NuxtLink
+					to="/account"
+					class="flex items-center gap-3 rounded-lg border p-3 transition-colors hover:bg-muted/50 hover:border-primary/50 group"
+					@click="sidebarOpen = false"
+				>
+					<div class="p-1.5 rounded-md bg-primary/10 text-primary shrink-0">
+						<User class="w-4 h-4" />
+					</div>
+					<span class="text-sm font-medium">{{ $t('nav.account') }}</span>
+				</NuxtLink>
+
+				<div class="border-t my-1" />
+
 				<!-- Seguidor de seguidores -->
 				<NuxtLink
 					to="/follow"
@@ -142,7 +164,7 @@
 import { ref, computed } from 'vue'
 import { useRoute } from 'vue-router'
 import { useDark, useToggle } from '@vueuse/core'
-import { Menu, X, Sun, Moon, UserPlus, UserMinus, UserX, LayoutGrid } from 'lucide-vue-next'
+import { Menu, X, Sun, Moon, UserPlus, UserMinus, UserX, LayoutGrid, User } from 'lucide-vue-next'
 import { Badge } from '@/components/ui/badge'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 

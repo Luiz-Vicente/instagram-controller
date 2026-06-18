@@ -49,6 +49,7 @@
   "nav": {
     "title": "Instagram Controller",
     "tools": "Ferramentas",
+    "account": "Minha conta",
     "howItWorks": "Como funciona",
     "betaWarning": "Esta ferramenta está em beta. Use com parcimônia e por sua conta e risco — o uso excessivo pode resultar em restrições temporárias na sua conta do Instagram."
   },
@@ -204,10 +205,10 @@
       },
       "filters": {
         "label": "Filtros",
-        "notFollowingBack": "Remover apenas quem não me segue de volta",
-        "minFollowers": "Ignorar contas com menos de X seguidores",
+        "notFollowingBack": "Remover apenas quem não me segue de volta (preservar seguidores mútuos)",
+        "minFollowers": "Preservar contas que sigo com poucos seguidores (não deixar de seguir abaixo do mínimo)",
         "minFollowersPlaceholder": "Mínimo de seguidores",
-        "maxFollowers": "Ignorar contas com mais de X seguidores",
+        "maxFollowers": "Preservar contas que sigo com muitos seguidores (não deixar de seguir acima do máximo)",
         "maxFollowersPlaceholder": "Máximo de seguidores",
       },
       "submit": "Iniciar remoção",
@@ -225,6 +226,89 @@
       "stop": "Parar remoção",
       "stopping": "Parando...",
       "newUnfollow": "Nova remoção"
+    }
+  },
+  "aboutRemoveFollowers": {
+    "title": "Como funciona",
+    "subtitle": "Entenda a diferença entre remover seguidores e deixar de seguir, os filtros disponíveis e os riscos.",
+    "back": "Voltar",
+    "overview": {
+      "title": "Visão geral",
+      "p1": "Remover um seguidor é diferente de deixar de seguir alguém. Nesta ferramenta, você remove pessoas da sua lista de seguidores — elas deixam de te seguir sem receber uma notificação explícita. O processamento acontece no servidor local, sem envio de dados para serviços externos além do próprio Instagram.",
+      "p2": "A ferramenta percorre a sua lista de seguidores página a página, aplica os filtros configurados e remove cada conta que não for preservada pelos filtros. Delays aleatórios entre cada ação simulam comportamento humano e reduzem o risco de detecção."
+    },
+    "filters": {
+      "title": "Como os filtros funcionam",
+      "minFollowers": {
+        "title": "Preservar seguidores com poucos seguidores",
+        "body": "Define um piso de seguidores: contas com menos seguidores do que o valor configurado são preservadas e não removidas. Útil para manter perfis menores e mais próximos — amigos, conhecidos — que normalmente têm poucos seguidores."
+      },
+      "maxFollowers": {
+        "title": "Preservar seguidores com muitos seguidores",
+        "body": "Define um teto de seguidores: contas com mais seguidores do que o valor configurado são preservadas. Útil para manter grandes perfis — marcas, influenciadores — que você quer continuar sendo seguido por eles."
+      },
+      "combining": {
+        "title": "Combinando filtros",
+        "body": "Os filtros são cumulativos. Uma conta só é removida se não for protegida por nenhum filtro ativo. Usar mínimo e máximo ao mesmo tempo preserva tanto contas muito pequenas quanto muito grandes, removendo apenas as intermediárias. Cada filtro de seguidores gera uma chamada extra à API, aumentando o tempo total."
+      }
+    },
+    "mechanisms": {
+      "title": "Mecanismos de defesa",
+      "delays": {
+        "title": "Delays entre remoções",
+        "body": "Após cada remoção bem-sucedida, o app aguarda entre 60 e 120 segundos antes da próxima ação. Quando filtros de seguidores estão ativos, são adicionados delays extras de 5 a 10 segundos por consulta de perfil. Os intervalos são sempre aleatórios para evitar padrões detectáveis."
+      },
+      "batch": {
+        "title": "Pausas de lote",
+        "body": "A cada 10 remoções consecutivas, o app faz uma pausa extra de 2 a 5 minutos, simulando o comportamento natural de alguém que para para ver o feed ou descansar entre sessões."
+      },
+      "rateLimit": {
+        "title": "Limite de taxa diário e horário",
+        "body": "Cada modo define quantas remoções são permitidas por hora e por dia. O histórico é salvo no navegador e carregado na próxima sessão, garantindo que o contador não zere ao fechar e reabrir o app."
+      }
+    },
+    "modes": {
+      "title": "Modos de remoção e risco",
+      "intro": "O Instagram monitora remoções de seguidores de forma similar a outros comportamentos automatizados. Volumes altos em pouco tempo aumentam o risco de restrições.",
+      "ultraSafe": {
+        "label": "Ultra Segura",
+        "badge": "Mínimo risco",
+        "rate": "20 remoções/hora · 60 remoções/dia",
+        "body": "Ritmo muito conservador, ideal para contas novas ou que já tiveram restrições anteriores."
+      },
+      "safe": {
+        "label": "Segura",
+        "badge": "Recomendado",
+        "rate": "40 remoções/hora · 120 remoções/dia",
+        "body": "Equilíbrio entre velocidade e segurança. Recomendado para uso contínuo em contas estabelecidas."
+      },
+      "risky": {
+        "label": "Arriscada",
+        "badge": "Alto risco",
+        "rate": "80 remoções/hora · 300 remoções/dia",
+        "body": "Volume próximo aos limites do Instagram. Pode acionar bloqueios temporários ou shadowban. Use apenas pontualmente em contas sólidas."
+      }
+    },
+    "consequences": {
+      "title": "O que pode acontecer",
+      "actionBlocked": {
+        "label": "Action Blocked",
+        "body": "O Instagram bloqueia temporariamente a ação de remover seguidores, normalmente por 24 a 48 horas. A conta continua funcionando normalmente para outras ações. Pare o app imediatamente e aguarde antes de retomar."
+      },
+      "shadowban": {
+        "label": "Shadowban",
+        "body": "Uso excessivo pode reduzir o alcance do perfil sem aviso — publicações param de aparecer em hashtags e no Explorar. Geralmente temporário, mas pode durar dias ou semanas."
+      }
+    },
+    "bestPractices": {
+      "title": "Boas práticas",
+      "items": [
+        "Use o modo Segura como padrão. Aumente apenas em situações pontuais.",
+        "Não execute o app continuamente — faça sessões com intervalos de inatividade entre elas.",
+        "Se receber um \"Action Blocked\", pare imediatamente e aguarde pelo menos 24 horas.",
+        "Filtros de seguidores fazem chamadas extras à API por conta processada. Em listas grandes, isso aumenta significativamente o tempo de execução.",
+        "O Session ID expira ao fazer logout no Instagram. Gere um novo se o app reportar erro de autenticação."
+      ]
     }
   },
   "aboutUnfollow": {
@@ -321,6 +405,96 @@
         "O filtro de \"não me segue de volta\" é o mais custoso em termos de API. Em contas com muitos seguimentos, o processo pode ser bastante lento.",
         "O Session ID expira quando você faz logout no navegador. Gere um novo sempre que o app reportar erro de autenticação."
       ]
+    }
+  },
+  "aboutPosts": {
+    "title": "Como funciona",
+    "subtitle": "Entenda as duas ações disponíveis, como os filtros se aplicam e o processo de execução.",
+    "back": "Voltar",
+    "overview": {
+      "title": "Visão geral",
+      "p1": "O gerenciador de posts age diretamente sobre a sua conta: primeiro escaneia todos os posts que correspondem aos filtros configurados, depois executa a ação escolhida (arquivar ou excluir) em cada um deles com delays humanizados entre cada operação.",
+      "p2": "Todo o processamento acontece no servidor local. Nenhum conteúdo é enviado para serviços externos além do próprio Instagram."
+    },
+    "actions": {
+      "title": "Ações disponíveis",
+      "archive": {
+        "title": "Arquivar",
+        "body": "O post é ocultado do perfil público mas permanece na sua conta, acessível em Configurações → Arquivo. É uma ação reversível — você pode desarquivar os posts a qualquer momento pelo próprio aplicativo do Instagram."
+      },
+      "delete": {
+        "title": "Excluir",
+        "body": "O post é removido permanentemente. Não há recuperação possível após a exclusão. Use com atenção — o app exibe um aviso antes de iniciar essa ação."
+      }
+    },
+    "filters": {
+      "title": "Como os filtros funcionam",
+      "types": {
+        "title": "Tipos de post",
+        "body": "Você pode selecionar um ou mais tipos: Foto (imagem estática), Vídeo (vídeo comum no feed), Reel (vídeo curto no formato reels) e Carrossel (álbum com múltiplas imagens ou vídeos). Deixar todos desmarcados equivale a selecionar todos os tipos."
+      },
+      "dateRange": {
+        "title": "Filtro por período",
+        "body": "Define um intervalo de datas com início e fim opcionais. Os posts são retornados do mais recente ao mais antigo — o app interrompe a busca automaticamente ao ultrapassar a data de início, sem precisar varrer toda a conta. Você pode definir apenas o início, apenas o fim, ou ambos."
+      },
+      "combining": {
+        "title": "Combinando filtros",
+        "body": "Tipo e data são aplicados juntos: só são processados posts que correspondam ao tipo selecionado E estejam dentro do período definido. A fase de escaneamento termina antes de qualquer ação ser executada, permitindo que você veja o total de posts encontrados antes do início."
+      }
+    },
+    "mechanisms": {
+      "title": "Como a execução funciona",
+      "scan": {
+        "title": "Fase 1 — Escaneamento",
+        "body": "Antes de executar qualquer ação, o app varre todos os posts da conta aplicando os filtros. Somente ao terminar o escaneamento é que a barra de progresso aparece com o total real de posts a processar. Isso evita agir sobre posts sem saber o volume total."
+      },
+      "delays": {
+        "title": "Fase 2 — Execução com delays",
+        "body": "Cada ação (arquivar ou excluir) é seguida de um delay aleatório entre 4 e 10 segundos antes da próxima. Esses intervalos simulam o comportamento de alguém realizando as ações manualmente e reduzem o risco de detecção."
+      },
+      "batch": {
+        "title": "Pausas de lote",
+        "body": "A cada 20 ações consecutivas, o app faz uma pausa de 15 a 30 segundos antes de continuar. Isso reproduz o comportamento natural de alguém que para brevemente entre blocos de ações."
+      },
+      "retry": {
+        "title": "Retry em erros de rate limit",
+        "body": "Se a API retornar erro 429 (rate limit) ou 503 durante a execução, o app pausa automaticamente por 10 minutos antes de retomar — sem interromper o processo nem perder o progresso."
+      }
+    },
+    "bestPractices": {
+      "title": "Boas práticas",
+      "items": [
+        "Prefira arquivar antes de excluir — você pode desfazer o arquivamento, mas não a exclusão.",
+        "Use o filtro de data para processar posts em lotes menores em vez de toda a conta de uma vez.",
+        "Não feche a aba durante a execução. O processo roda no servidor, mas os eventos de progresso chegam via SSE e param se a aba fechar.",
+        "Se receber um erro de rate limit inesperado, o app pausa automaticamente. Aguarde a retomada sem intervir.",
+        "O Session ID expira ao fazer logout no Instagram. Gere um novo se o app reportar erro de autenticação."
+      ]
+    }
+  },
+  "account": {
+    "title": "Minha conta",
+    "subtitle": "Gerencie o Session ID do Instagram vinculado às ferramentas.",
+    "sessionId": {
+      "label": "Session ID",
+      "placeholder": "Cole aqui o seu Session ID",
+      "tooltip": "Token de autenticação da sua sessão no Instagram. Para obtê-lo, acesse o Instagram pelo navegador, abra o DevTools (F12), vá em Application → Cookies e copie o valor do cookie sessionid.",
+      "show": "Mostrar Session ID",
+      "hide": "Ocultar Session ID",
+      "hint": "Seu Session ID é armazenado apenas localmente neste navegador."
+    },
+    "save": "Salvar e verificar",
+    "saving": "Verificando...",
+    "remove": "Remover sessão",
+    "verified": "Verificado",
+    "error": "Session ID inválido ou expirado. Verifique e tente novamente.",
+    "profile": {
+      "followers": "seguidores",
+      "following": "seguindo"
+    },
+    "noSession": {
+      "notice": "Session ID não configurado.",
+      "cta": "Configure sua conta →"
     }
   },
   "about": {

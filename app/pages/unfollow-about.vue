@@ -143,9 +143,9 @@
 			<section class="flex flex-col gap-4">
 				<h2 class="text-lg font-semibold">{{ $t('aboutUnfollow.bestPractices.title') }}</h2>
 				<ul class="flex flex-col gap-2 text-sm text-muted-foreground">
-					<li v-for="(item, i) in $tm('aboutUnfollow.bestPractices.items') as string[]" :key="i" class="flex items-start gap-2">
+					<li v-for="(item, i) in $tm('aboutUnfollow.bestPractices.items')" :key="i" class="flex items-start gap-2">
 						<span class="mt-0.5 text-foreground">·</span>
-						<span>{{ item }}</span>
+						<span>{{ $rt(item) }}</span>
 					</li>
 				</ul>
 			</section>

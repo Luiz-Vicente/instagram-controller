@@ -1,12 +1,13 @@
 export type JobStatus = 'idle' | 'running' | 'paused' | 'done' | 'error' | 'stopped'
 
 export interface JobEvent {
-  type: 'log' | 'progress' | 'pause' | 'done' | 'error' | 'stopped'
+  type: 'log' | 'progress' | 'pause' | 'done' | 'error' | 'stopped' | 'countdown'
   message?: string
   followed?: number
   skipped?: number
   total?: number
   pauseUntil?: number // timestamp ms
+  seconds?: number
 }
 
 export interface Job {
@@ -37,8 +38,10 @@ export function getJob(): Job | null {
   return activeJob
 }
 
-export function clearJob(): void {
-  activeJob = null
+export function clearJob(job?: Job): void {
+  if (job === undefined || activeJob === job) {
+    activeJob = null
+  }
 }
 
 export function emitEvent(job: Job, event: JobEvent): void {

@@ -38,13 +38,22 @@ instagram-controller/
 │   ├── assets/css/tailwind.css        # Tema CSS com variáveis oklch (light + dark)
 │   ├── lib/utils.ts                   # cn() helper (clsx + tailwind-merge)
 │   ├── components/
-│   │   ├── AppNavbar.vue              # Navbar global: logo, link "Como funciona", toggle dark mode
+│   │   ├── AppNavbar.vue              # Navbar global: logo, botão Minha conta, toggle dark mode
 │   │   └── ui/                        # Componentes shadcn instalados
 │   │       ├── badge/, card/, checkbox/
 │   │       ├── input/, label/, radio-group/, tooltip/
+│   ├── composables/
+│   │   └── useSession.ts              # useLocalStorage('ig_session_id') — sessionId global
+│   ├── middleware/
+│   │   └── require-session.ts         # Redireciona para /account se sessionId vazio
 │   ├── pages/
-│   │   ├── index.vue                  # Página principal — formulário + tela de progresso
-│   │   └── about.vue                  # Página explicativa — mecanismos, modos, riscos, boas práticas
+│   │   ├── index.vue                  # Lista de ferramentas — banner de aviso se sem sessionId
+│   │   ├── account.vue                # Minha conta — input sessionId, perfil verificado
+│   │   ├── follow.vue                 # Ferramenta: seguir seguidores
+│   │   ├── unfollow.vue               # Ferramenta: remover seguimentos
+│   │   ├── remove-followers.vue       # Ferramenta: remover seguidores
+│   │   ├── posts.vue                  # Ferramenta: gerenciar posts
+│   │   └── about*.vue                 # Páginas explicativas de cada ferramenta
 │   └── plugins/
 │       └── i18n-browser-lang.client.ts  # Detecção de idioma via navigator.language
 ├── i18n/
@@ -52,6 +61,8 @@ instagram-controller/
 │       ├── en.json                    # Traduções em inglês
 │       └── pt.json                    # Traduções em português
 ├── server/
+│   ├── api/account/
+│   │   └── profile.get.ts             # GET  — busca perfil atual via sessionId (query param)
 │   ├── api/follow/
 │   │   ├── start.post.ts              # POST — inicia o job em background
 │   │   ├── status.get.ts              # GET  — SSE com eventos de progresso em tempo real
@@ -71,12 +82,23 @@ instagram-controller/
 
 ## Páginas
 
+### `app/pages/account.vue` — Minha conta
+
+- Input Session ID com `type="password"` + toggle Eye/EyeOff
+- Botão "Salvar e verificar" → `GET /api/account/profile?sessionId=...` → exibe card com nome, @username, seguidores, seguindo
+- Salva sessionId no localStorage (`ig_session_id`) apenas após verificação bem-sucedida
+- Botão "Remover sessão" limpa localStorage e o card
+- Na montagem, auto-verifica se já há sessionId salvo
+- Usado por `useSession()` composable em todas as páginas de ferramenta
+
 ### `app/pages/index.vue` — Página principal
+
+Banner de aviso no topo se `sessionId` estiver vazio (linka para `/account`).
 
 Duas views no mesmo componente, alternadas pelo estado `running`.
 
 **Formulário (view inicial):**
-- Input Session ID com `type="password"` + toggle de visibilidade (Eye/EyeOff)
+- Session ID lido do localStorage via `useSession()` composable — sem campo de input nas ferramentas
 - Input Usuário alvo
 - Tooltips em Session ID, Usuário alvo e Modo de seguimento
 - RadioGroup de modos de seguimento
