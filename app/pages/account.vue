@@ -128,7 +128,7 @@ onMounted(async () => {
 	}
 })
 
-async function fetchProfile(sid: string) {
+async function fetchProfile(sid: string, notify = false) {
 	verifying.value = true
 	error.value = ''
 	try {
@@ -138,7 +138,7 @@ async function fetchProfile(sid: string) {
 			follower_count: number
 			following_count: number
 			profile_pic_url: string | null
-		}>('/api/account/profile', { params: { sessionId: sid } })
+		}>('/api/account/profile', { params: { sessionId: sid, ...(notify ? { save: 'true' } : {}) } })
 		profile.value = data
 	} catch {
 		error.value = t('account.error')
@@ -151,7 +151,7 @@ async function fetchProfile(sid: string) {
 async function save() {
 	const sid = inputValue.value.trim()
 	if (!sid) return
-	await fetchProfile(sid)
+	await fetchProfile(sid, true)
 	if (profile.value) {
 		sessionId.value = sid
 	}

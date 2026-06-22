@@ -12,10 +12,6 @@ const BATCH_PAUSE_MAX_SEC = 300
 export interface RemoveFollowersConfig {
   sessionId: string
   removeMode: FollowMode
-  filterByMinFollowers: boolean
-  minFollowers: number
-  filterByMaxFollowers: boolean
-  maxFollowers: number
   previousTimestamps: number[]
 }
 
@@ -127,34 +123,6 @@ async function applyFilters(
   log: (msg: string) => void,
   processedIds: Set<string>,
 ): Promise<boolean> {
-  if (config.filterByMinFollowers || config.filterByMaxFollowers) {
-    let followerCount: number | undefined
-    try {
-      const profile = await ig.fetchUserProfile(user.username, 1)
-      followerCount = profile.follower_count
-    } catch {
-      // couldn't fetch — let through
-    }
-    await interruptibleSleep(randomDelay(5, 10), () => job.shouldStop)
-
-    if (followerCount !== undefined) {
-      if (config.filterByMinFollowers && followerCount < config.minFollowers) {
-        processedIds.add(user.pk)
-        job.skipped++
-        log(`[=] @${user.username} — ${followerCount.toLocaleString('pt-BR')} seguidores (mín: ${config.minFollowers.toLocaleString('pt-BR')}), pulando`)
-        emitEvent(job, { type: 'progress', followed: job.followed, skipped: job.skipped, total: job.total })
-        return true
-      }
-      if (config.filterByMaxFollowers && followerCount > config.maxFollowers) {
-        processedIds.add(user.pk)
-        job.skipped++
-        log(`[=] @${user.username} — ${followerCount.toLocaleString('pt-BR')} seguidores (máx: ${config.maxFollowers.toLocaleString('pt-BR')}), pulando`)
-        emitEvent(job, { type: 'progress', followed: job.followed, skipped: job.skipped, total: job.total })
-        return true
-      }
-    }
-  }
-
   return false
 }
 

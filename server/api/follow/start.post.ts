@@ -8,8 +8,6 @@ const bodySchema = z.object({
   followMode: z.enum(['ultra-safe', 'safe', 'risky']),
   followPrivate: z.boolean().default(false),
   followAlreadyFollowers: z.boolean().default(false),
-  filterByFollowers: z.boolean().default(false),
-  minFollowers: z.number().int().min(0).default(0),
   previousTimestamps: z.array(z.number()).default([]),
 })
 

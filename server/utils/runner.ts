@@ -15,8 +15,6 @@ export interface RunnerConfig {
   followMode: FollowMode
   followPrivate: boolean
   followAlreadyFollowers: boolean
-  filterByFollowers: boolean
-  minFollowers: number
   previousTimestamps: number[]
 }
 
@@ -87,26 +85,6 @@ export async function runFollowJob(config: RunnerConfig, job: Job): Promise<void
           followedIds.add(user.pk)
           log(`[=] @${user.username} — conta privada, pulando`)
           continue
-        }
-
-        // Filter: minimum followers
-        if (config.filterByFollowers && config.minFollowers > 0) {
-          let followerCount: number | undefined
-          try {
-            const profile = await ig.fetchUserProfile(user.username, 1)
-            followerCount = profile.follower_count
-          } catch {
-            // couldn't fetch — let the account through
-          }
-          const delay = randomDelay(5, 10)
-          log(`Aguardando ${formatDuration(delay)} após consulta de perfil...`)
-          await interruptibleSleep(delay, () => job.shouldStop)
-          if (followerCount !== undefined && followerCount < config.minFollowers) {
-            job.skipped++
-            followedIds.add(user.pk)
-            log(`[=] @${user.username} — ${followerCount} seguidores (mínimo: ${config.minFollowers}), pulando`)
-            continue
-          }
         }
 
         // Check friendship status

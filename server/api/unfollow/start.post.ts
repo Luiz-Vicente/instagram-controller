@@ -6,11 +6,7 @@ const bodySchema = z.object({
   sessionId: z.string().min(1),
   unfollowMode: z.enum(['ultra-safe', 'safe', 'risky']),
   onlyNotFollowingBack: z.boolean().default(false),
-  filterByMinFollowers: z.boolean().default(false),
-  minFollowers: z.number().int().min(0).default(0),
-  filterByMaxFollowers: z.boolean().default(false),
-  maxFollowers: z.number().int().min(0).default(0),
-previousTimestamps: z.array(z.number()).default([]),
+  previousTimestamps: z.array(z.number()).default([]),
 })
 
 export default defineEventHandler(async (event) => {

@@ -105,22 +105,6 @@
 							<span class="text-sm select-none">{{ $t('form.filters.alreadyFollowers') }}</span>
 						</div>
 
-						<div class="flex flex-col gap-2">
-							<div class="flex items-center gap-3 cursor-pointer" @click="filterByFollowers = !filterByFollowers">
-								<Checkbox v-model="filterByFollowers" class="pointer-events-none" />
-								<span class="text-sm select-none">{{ $t('form.filters.minFollowers') }}</span>
-							</div>
-							<div v-if="filterByFollowers" class="ml-7">
-								<Input
-									id="min-followers-count"
-									v-model="minFollowers"
-									type="number"
-									min="0"
-									:placeholder="$t('form.filters.minFollowersPlaceholder')"
-									class="w-48"
-								/>
-							</div>
-						</div>
 					</div>
 				</div>
 
@@ -238,9 +222,6 @@ const targetUser = ref('')
 const followMode = ref('safe')
 const followPrivate = ref(false)
 const followAlreadyFollowers = ref(false)
-const filterByFollowers = ref(false)
-const minFollowers = ref<string | number | undefined>(undefined)
-
 // ── UI state ────────────────────────────────────────────────────────────────
 const running = ref(false)
 const starting = ref(false)
@@ -352,8 +333,6 @@ async function start() {
 				followMode: followMode.value,
 				followPrivate: followPrivate.value,
 				followAlreadyFollowers: followAlreadyFollowers.value,
-				filterByFollowers: filterByFollowers.value,
-				minFollowers: Number(minFollowers.value) || 0,
 				previousTimestamps: followTimestamps.value,
 			},
 		})

@@ -81,41 +81,8 @@
 							<span class="text-sm select-none">{{ $t('unfollow.form.filters.notFollowingBack') }}</span>
 						</div>
 
-						<!-- Mínimo de seguidores -->
-						<div class="flex flex-col gap-2">
-							<div class="flex items-center gap-3 cursor-pointer" @click="filterByMinFollowers = !filterByMinFollowers">
-								<Checkbox v-model="filterByMinFollowers" class="pointer-events-none" />
-								<span class="text-sm select-none">{{ $t('unfollow.form.filters.minFollowers') }}</span>
-							</div>
-							<div v-if="filterByMinFollowers" class="ml-7">
-								<Input
-									v-model="minFollowers"
-									type="number"
-									min="0"
-									:placeholder="$t('unfollow.form.filters.minFollowersPlaceholder')"
-									class="w-48"
-								/>
-							</div>
-						</div>
 
-						<!-- Máximo de seguidores -->
-						<div class="flex flex-col gap-2">
-							<div class="flex items-center gap-3 cursor-pointer" @click="filterByMaxFollowers = !filterByMaxFollowers">
-								<Checkbox v-model="filterByMaxFollowers" class="pointer-events-none" />
-								<span class="text-sm select-none">{{ $t('unfollow.form.filters.maxFollowers') }}</span>
-							</div>
-							<div v-if="filterByMaxFollowers" class="ml-7">
-								<Input
-									v-model="maxFollowers"
-									type="number"
-									min="0"
-									:placeholder="$t('unfollow.form.filters.maxFollowersPlaceholder')"
-									class="w-48"
-								/>
-							</div>
-						</div>
-
-					</div>
+</div>
 				</div>
 
 				<button
@@ -234,10 +201,6 @@ const unfollowedToday = computed(() => unfollowTimestamps.value.length)
 // ── Form state ──────────────────────────────────────────────────────────────
 const unfollowMode = ref('safe')
 const onlyNotFollowingBack = ref(false)
-const filterByMinFollowers = ref(false)
-const minFollowers = ref<string | number | undefined>(undefined)
-const filterByMaxFollowers = ref(false)
-const maxFollowers = ref<string | number | undefined>(undefined)
 // ── UI state ────────────────────────────────────────────────────────────────
 const running = ref(false)
 const starting = ref(false)
@@ -347,11 +310,7 @@ async function start() {
 				sessionId: sessionId.value,
 				unfollowMode: unfollowMode.value,
 				onlyNotFollowingBack: onlyNotFollowingBack.value,
-				filterByMinFollowers: filterByMinFollowers.value,
-				minFollowers: Number(minFollowers.value) || 0,
-				filterByMaxFollowers: filterByMaxFollowers.value,
-				maxFollowers: Number(maxFollowers.value) || 0,
-		previousTimestamps: unfollowTimestamps.value,
+				previousTimestamps: unfollowTimestamps.value,
 			},
 		})
 		running.value = true

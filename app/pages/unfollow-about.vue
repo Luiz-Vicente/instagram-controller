@@ -29,27 +29,6 @@
 						</div>
 						<p class="text-sm text-muted-foreground leading-relaxed">{{ $t('aboutUnfollow.filters.notFollowingBack.body') }}</p>
 					</div>
-					<div class="rounded-lg border p-4 flex flex-col gap-1.5">
-						<div class="flex items-center gap-2">
-							<TrendingDown class="w-4 h-4 text-muted-foreground" />
-							<span class="font-medium text-sm">{{ $t('aboutUnfollow.filters.minFollowers.title') }}</span>
-						</div>
-						<p class="text-sm text-muted-foreground leading-relaxed">{{ $t('aboutUnfollow.filters.minFollowers.body') }}</p>
-					</div>
-					<div class="rounded-lg border p-4 flex flex-col gap-1.5">
-						<div class="flex items-center gap-2">
-							<TrendingUp class="w-4 h-4 text-muted-foreground" />
-							<span class="font-medium text-sm">{{ $t('aboutUnfollow.filters.maxFollowers.title') }}</span>
-						</div>
-						<p class="text-sm text-muted-foreground leading-relaxed">{{ $t('aboutUnfollow.filters.maxFollowers.body') }}</p>
-					</div>
-					<div class="rounded-lg border p-4 flex flex-col gap-1.5">
-						<div class="flex items-center gap-2">
-							<Combine class="w-4 h-4 text-muted-foreground" />
-							<span class="font-medium text-sm">{{ $t('aboutUnfollow.filters.combining.title') }}</span>
-						</div>
-						<p class="text-sm text-muted-foreground leading-relaxed">{{ $t('aboutUnfollow.filters.combining.body') }}</p>
-					</div>
 				</div>
 			</section>
 
@@ -154,6 +133,6 @@
 </template>
 
 <script setup lang="ts">
-import { ArrowLeft, Clock, Layers, ShieldCheck, RotateCcw, UserX, TrendingDown, TrendingUp, Combine } from 'lucide-vue-next'
+import { ArrowLeft, Clock, Layers, ShieldCheck, RotateCcw, UserX } from 'lucide-vue-next'
 import { Badge } from '@/components/ui/badge'
 </script>

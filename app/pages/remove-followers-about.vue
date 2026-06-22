@@ -18,34 +18,6 @@
 				<p class="text-sm text-muted-foreground leading-relaxed">{{ $t('aboutRemoveFollowers.overview.p2') }}</p>
 			</section>
 
-			<!-- Filtros -->
-			<section class="flex flex-col gap-4">
-				<h2 class="text-lg font-semibold">{{ $t('aboutRemoveFollowers.filters.title') }}</h2>
-				<div class="flex flex-col gap-3">
-					<div class="rounded-lg border p-4 flex flex-col gap-1.5">
-						<div class="flex items-center gap-2">
-							<TrendingDown class="w-4 h-4 text-muted-foreground" />
-							<span class="font-medium text-sm">{{ $t('aboutRemoveFollowers.filters.minFollowers.title') }}</span>
-						</div>
-						<p class="text-sm text-muted-foreground leading-relaxed">{{ $t('aboutRemoveFollowers.filters.minFollowers.body') }}</p>
-					</div>
-					<div class="rounded-lg border p-4 flex flex-col gap-1.5">
-						<div class="flex items-center gap-2">
-							<TrendingUp class="w-4 h-4 text-muted-foreground" />
-							<span class="font-medium text-sm">{{ $t('aboutRemoveFollowers.filters.maxFollowers.title') }}</span>
-						</div>
-						<p class="text-sm text-muted-foreground leading-relaxed">{{ $t('aboutRemoveFollowers.filters.maxFollowers.body') }}</p>
-					</div>
-					<div class="rounded-lg border p-4 flex flex-col gap-1.5">
-						<div class="flex items-center gap-2">
-							<Combine class="w-4 h-4 text-muted-foreground" />
-							<span class="font-medium text-sm">{{ $t('aboutRemoveFollowers.filters.combining.title') }}</span>
-						</div>
-						<p class="text-sm text-muted-foreground leading-relaxed">{{ $t('aboutRemoveFollowers.filters.combining.body') }}</p>
-					</div>
-				</div>
-			</section>
-
 			<!-- Mecanismos de defesa -->
 			<section class="flex flex-col gap-4">
 				<h2 class="text-lg font-semibold">{{ $t('aboutRemoveFollowers.mechanisms.title') }}</h2>
@@ -136,6 +108,6 @@
 </template>
 
 <script setup lang="ts">
-import { ArrowLeft, Clock, Layers, ShieldCheck, TrendingDown, TrendingUp, Combine } from 'lucide-vue-next'
+import { ArrowLeft, Clock, Layers, ShieldCheck } from 'lucide-vue-next'
 import { Badge } from '@/components/ui/badge'
 </script>

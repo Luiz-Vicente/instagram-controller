@@ -5,10 +5,6 @@ import { runRemoveFollowersJob } from '../../utils/remove-followers-runner'
 const bodySchema = z.object({
   sessionId: z.string().min(1),
   removeMode: z.enum(['ultra-safe', 'safe', 'risky']),
-  filterByMinFollowers: z.boolean().default(false),
-  minFollowers: z.number().int().min(0).default(0),
-  filterByMaxFollowers: z.boolean().default(false),
-  maxFollowers: z.number().int().min(0).default(0),
   previousTimestamps: z.array(z.number()).default([]),
 })
 
