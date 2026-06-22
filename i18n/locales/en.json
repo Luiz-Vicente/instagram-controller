@@ -481,7 +481,8 @@
       "tooltip": "Authentication token for your Instagram session. To get it, open Instagram in your browser, open DevTools (F12), go to Application → Cookies and copy the value of the sessionid cookie.",
       "show": "Show Session ID",
       "hide": "Hide Session ID",
-      "hint": "Your Session ID is stored locally in this browser only."
+      "hint": "Your Session ID is stored locally in this browser only.",
+      "videoGuide": "Watch video: how to find your Session ID"
     },
     "save": "Save and verify",
     "saving": "Verifying...",

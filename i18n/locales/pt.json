@@ -481,7 +481,8 @@
       "tooltip": "Token de autenticação da sua sessão no Instagram. Para obtê-lo, acesse o Instagram pelo navegador, abra o DevTools (F12), vá em Application → Cookies e copie o valor do cookie sessionid.",
       "show": "Mostrar Session ID",
       "hide": "Ocultar Session ID",
-      "hint": "Seu Session ID é armazenado apenas localmente neste navegador."
+      "hint": "Seu Session ID é armazenado apenas localmente neste navegador.",
+      "videoGuide": "Ver vídeo: como encontrar seu Session ID"
     },
     "save": "Salvar e verificar",
     "saving": "Verificando...",

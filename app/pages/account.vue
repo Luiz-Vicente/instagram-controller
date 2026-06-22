@@ -70,6 +70,24 @@
 						</button>
 					</div>
 					<p class="text-xs text-muted-foreground">{{ $t('account.sessionId.hint') }}</p>
+					<a
+						href="https://jam.dev/v/d6b5b86f-56d5-4fa7-8cf4-90b81f90cf15"
+						target="_blank"
+						rel="noopener noreferrer"
+						class="group relative flex w-full aspect-video rounded-lg overflow-hidden border border-border mt-1"
+					>
+						<div
+							class="absolute inset-0 bg-cover bg-center scale-105"
+							style="background-image: url('/session-id-guide.png'); filter: blur(4px);"
+						/>
+						<div class="absolute inset-0 bg-black/40" />
+						<div class="relative flex flex-col items-center justify-center gap-3 w-full">
+							<div class="w-14 h-14 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center group-hover:bg-white/30 transition-colors">
+								<PlayCircle class="w-8 h-8 text-white" />
+							</div>
+							<span class="text-white/90 text-xs font-medium drop-shadow">{{ $t('account.sessionId.videoGuide') }}</span>
+						</div>
+					</a>
 				</div>
 
 				<p v-if="error" class="flex items-center gap-1.5 text-sm text-destructive">
@@ -106,7 +124,7 @@ const { t, locale } = useI18n()
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
-import { Info, Loader2, Eye, EyeOff, User, CheckCircle, AlertCircle } from 'lucide-vue-next'
+import { Info, Loader2, Eye, EyeOff, User, CheckCircle, AlertCircle, PlayCircle } from 'lucide-vue-next'
 
 const { sessionId } = useSession()
 
